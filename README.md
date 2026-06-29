@@ -23,17 +23,13 @@ Recommendations split into two groups from a single 7-day forecast:
   generalized agronomic thresholds.
 - **Stack:** static front end (no build step, no backend) — trivially runnable and deployable.
 
-## Run locally
+## Proposed stack
 
-```bash
-# any static server works, e.g.
-python3 -m http.server 8000
-# then open http://localhost:8000
-```
-
-## Deploy
-
-Static site, deploys to Vercel as-is (see `vercel.json`).
+- **Data:** [Open-Meteo](https://open-meteo.com/) forecast API — free, no API key, hourly +
+  7-day, including precipitation, wind, temperature, ET₀ (evapotranspiration), and frost.
+- **Front end:** static single-page app, client-side API calls, no build step, no backend.
+- **Map:** Leaflet + OpenStreetMap tiles for the location dashboard.
+- **Deploy:** Vercel static, public URL.
 
 ## Scope (v1)
 
@@ -43,4 +39,6 @@ are agronomic guidance, not a substitute for the pesticide label or local regula
 
 ## Project status
 
-🚧 Scaffold / initial commit. App logic in progress.
+📋 Spec stage — requirements are defined and ready for development handoff. See
+[`PRD-this-week-on-the-farm.md`](./PRD-this-week-on-the-farm.md) for the full PRD,
+rules table, acceptance criteria, and milestones.
