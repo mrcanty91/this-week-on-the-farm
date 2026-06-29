@@ -9,7 +9,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { prioritize } from '../src/prioritize.js';
-import { CARD_PRIORITY, CARD_GROUPS, CARD_TARGET_MAX, CARD_TARGET_MIN } from '../src/config.js';
+import { cropCards } from '../src/rules-crops.js';
+import { crewCards } from '../src/rules-crew.js';
+import { CARD_PRIORITY, CARD_GROUPS, CARD_TARGET_MAX, CARD_TARGET_MIN, CARD_FLOOR } from '../src/config.js';
 
 /* ------------------------------------------------------------------ */
 /* Fixture helpers                                                       */
@@ -257,11 +259,19 @@ test('with exactly 4 cards returns all 4 (floor holds)', () => {
   assert.equal(result.length, 4, 'should return all 4 when exactly 4 are provided');
 });
 
-test('with fewer than 4 cards returns all available cards without padding', () => {
+test('tops up the Crops section to 2 (neutral card) when crops are sparse', () => {
+  // One Crops (FROST) + one Crew (WORKABLE). Crops has < 2, so the neutral Crops
+  // card is injected to support the §8 floor; real crew cards aren't manufactured.
   const input = [WORKABLE_CARD, FROST_CARD];
   const result = prioritize(input);
-  // Can't manufacture phantom cards — just don't drop any
-  assert.equal(result.length, 2, 'should not drop cards when below minimum');
+  const cropsCards = result.filter(c => c.group === CARD_GROUPS.CROPS);
+  assert.equal(cropsCards.length, 2, 'Crops topped up to 2 (FROST + neutral)');
+  assert.ok(
+    cropsCards.some(c => /No critical crop actions this week/i.test(c.title)),
+    'a neutral Crops card fills the second Crops slot',
+  );
+  // No real Crew card is invented — still exactly the one provided.
+  assert.equal(result.filter(c => c.group === CARD_GROUPS.CREW).length, 1);
 });
 
 /* ------------------------------------------------------------------ */
@@ -288,4 +298,52 @@ test('benign CW-02 (priority WORKABLE_DAYS) is pinned and survives the 6-card ca
   // BOTH always-on Crew cards survive capping despite 6 crops competing.
   assert.ok(result.some(c => c.ruleId === 'CW-01'), 'CW-01 Workable Days survives');
   assert.ok(result.some(c => c.ruleId === 'CW-02'), 'benign CW-02 Start Times survives');
+});
+
+/* ------------------------------------------------------------------ */
+/* END-TO-END: the §8 "4 guaranteed" floor through the REAL pipeline   */
+/* (cropCards + crewCards → prioritize). Regression guard for the      */
+/* mild-week case where only spray + the two crew cards fire (=3).     */
+/* ------------------------------------------------------------------ */
+
+/** A fully benign 7-day NormalizedForecast: no frost, no heat, no rain, low water demand. */
+function benignForecast() {
+  const HOURS = 168, DAYS = 7;
+  const hourly = {
+    time: Array.from({ length: HOURS }, (_, i) => {
+      const d = new Date(2026, 5, 29 + Math.floor(i / 24), i % 24, 0, 0);
+      const Y = d.getFullYear(), M = String(d.getMonth() + 1).padStart(2, '0'), D = String(d.getDate()).padStart(2, '0');
+      return `${Y}-${M}-${D}T${String(i % 24).padStart(2, '0')}:00`;
+    }),
+    temperature_2m: Array(HOURS).fill(72),      // mild — no frost, in spray range
+    apparent_temperature: Array(HOURS).fill(72), // no heat risk
+    precipitation: Array(HOURS).fill(0),         // no rain
+    precipitation_probability: Array(HOURS).fill(10),
+    wind_speed_10m: Array(HOURS).fill(5),        // calm — spray window open
+    weather_code: Array(HOURS).fill(0),
+  };
+  const daily = {
+    time: Array.from({ length: DAYS }, (_, i) => {
+      const d = new Date(2026, 5, 29 + i);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }),
+    et0: Array(DAYS).fill(0.1),                  // low water demand — CR-02 won't fire
+    precipitation_sum: Array(DAYS).fill(0),
+    temperature_2m_max: Array(DAYS).fill(80),    // < 100 → workable; < 90 → benign hours
+    temperature_2m_min: Array(DAYS).fill(60),
+    weather_code: Array(DAYS).fill(0),
+  };
+  return { latitude: 36.7, longitude: -119.8, timezone: 'America/Los_Angeles', utc_offset_seconds: -25200, hourly, daily };
+}
+
+test('end-to-end: a mild week still yields the guaranteed 4-card floor', () => {
+  const forecast = benignForecast();
+  const combined = [...cropCards(forecast), ...crewCards(forecast)];
+  // Sanity: the real rules produce only 3 cards in a benign week (spray + CW-01 + CW-02).
+  assert.equal(combined.length, 3, 'mild week: rules emit spray + 2 crew cards');
+
+  const result = prioritize(combined);
+  assert.ok(result.length >= CARD_FLOOR, `floor must hold: expected ≥${CARD_FLOOR}, got ${result.length}`);
+  assert.ok(result.filter(c => c.group === CARD_GROUPS.CROPS).length >= 2, 'Crops section has ≥2 cards');
+  assert.ok(result.filter(c => c.group === CARD_GROUPS.CREW).length >= 2, 'Crew section has ≥2 cards');
 });

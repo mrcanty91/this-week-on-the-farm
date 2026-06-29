@@ -206,6 +206,9 @@ test('typed submit with geocode hit calls onResolve with lat/lon/name', async ()
   assert.equal(calls[0].lat, 36.677);
   assert.equal(calls[0].lon, -121.655);
   assert.equal(calls[0].name, 'Salinas');
+  // country_code/admin1 must forward so the downstream CONUS guard can use them.
+  assert.equal(calls[0].country_code, 'US');
+  assert.equal(calls[0].admin1, 'California');
 });
 
 // ─── Test 4 — geocode returns null → not-found message, onResolve NOT called ─

@@ -193,8 +193,10 @@ function clearMessage(msgEl) {
  * Mount the location input into a host element.
  *
  * @param {HTMLElement} hostEl                       mount point (#location-form)
- * @param {(loc: {lat: number, lon: number, name?: string}) => void} onResolve
- *        called with resolved coordinates from either entry path
+ * @param {(loc: {lat: number, lon: number, name?: string, country_code?: string, admin1?: string}) => void} onResolve
+ *        called with resolved coordinates from either entry path. The typed path
+ *        also forwards country_code/admin1 (for the CONUS guard); the geolocation
+ *        path supplies only lat/lon.
  * @param {{ geocode?: Function, geolocation?: object }} [deps]
  *        dependency-injection shim; defaults to real browser/module values.
  *        deps.geocode    — (place: string) => Promise<GeocodeResult|null>
@@ -292,7 +294,16 @@ export function mountLocationInput(hostEl, onResolve, deps = {}) {
       showMessage(msgEl, "Couldn't find that place — try another.", 'error');
       return;
     }
-    onResolve({ lat: result.lat, lon: result.lon, name: result.name });
+    // Forward country_code/admin1 too: the CONUS guard (conus.isInConus) uses them
+    // to exclude AK/HI and non-US matches that still fall inside the bbox (e.g.
+    // Toronto). The geolocation path legitimately has none of these.
+    onResolve({
+      lat: result.lat,
+      lon: result.lon,
+      name: result.name,
+      country_code: result.country_code,
+      admin1: result.admin1,
+    });
   }
 
   geoBtn.addEventListener('click', handleGeoClick);

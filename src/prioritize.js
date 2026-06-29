@@ -92,9 +92,15 @@ const NEUTRAL_CROPS_CARD = Object.freeze({
  *                         enforced here.
  */
 export function prioritize(cards) {
-  // Step 1: inject neutral card if no CROPS group cards are present
-  const hasCrops = cards.some(c => c.group === CARD_GROUPS.CROPS);
-  const working = hasCrops ? [...cards] : [...cards, { ...NEUTRAL_CROPS_CARD }];
+  // Step 1: guarantee the §8 4-card floor's Crops half.
+  // Crew always contributes 2 always-on cards (CW-01 Workable Days + CW-02 Start
+  // Times). Crops always has spray (CR-03), but its irrigation cards (CR-01/CR-02)
+  // are conditional — a mild week (low water demand, no rain) yields only the
+  // single spray card, so the stack would be 3, not the guaranteed 4. Inject the
+  // neutral Crops card whenever the Crops section has fewer than 2 cards, mirroring
+  // Crew's always-on second card (§8 PM decision: "4–6 cards, with 4 guaranteed").
+  const cropsCount = cards.filter(c => c.group === CARD_GROUPS.CROPS).length;
+  const working = cropsCount >= 2 ? [...cards] : [...cards, { ...NEUTRAL_CROPS_CARD }];
 
   // Step 2: pin the always-on Crew cards — kept regardless of cap.
   // This pins BOTH CW-01 Workable Days AND the benign-state CW-02 Start Times:
