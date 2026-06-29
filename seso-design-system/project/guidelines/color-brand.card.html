@@ -1,0 +1,23 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Brand & action" subtitle="The two load-bearing colors: brand green and action blue" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+ body{margin:0;padding:20px;background:var(--surface);font-family:var(--font-sans)}
+ .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px}
+ .sw{border-radius:var(--radius-lg);padding:18px;height:96px;display:flex;flex-direction:column;justify-content:space-between}
+ .name{font-size:var(--text-sm);font-weight:700}
+ .meta{display:flex;justify-content:space-between;align-items:flex-end}
+ .hex{font-family:var(--font-mono);font-size:var(--text-xs)}
+ .tok{font-family:var(--font-mono);font-size:var(--text-xs);opacity:.8}
+</style></head><body>
+<div class="row">
+ <div class="sw" style="background:var(--green-600);color:#fff">
+   <div class="name">Brand green</div>
+   <div class="meta"><span class="tok">--brand</span><span class="hex">#006E33</span></div>
+ </div>
+ <div class="sw" style="background:var(--blue-600);color:#fff">
+   <div class="name">Action blue</div>
+   <div class="meta"><span class="tok">--action</span><span class="hex">#1D68BB</span></div>
+ </div>
+</div>
+</body></html>

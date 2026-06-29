@@ -1,0 +1,112 @@
+<!-- @dsCard group="Atoms" viewport="700x520" name="Atoms — buttons, badges, inputs, status" subtitle="Buttons · badges · status · tags · inputs · select · checkbox · avatar" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../styles.css" />
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 22px; background: var(--surface); }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 700px; }
+  .block { display: flex; flex-direction: column; gap: 10px; }
+  .h { font: var(--type-caption); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--text-muted); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Button, Badge, StatusIndicator, Tag, Input, Select, Checkbox, Avatar } = window.SesoDesignSystem_373f56;
+const Ext = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v8A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V10M9.5 2.5H13.5V6.5M13 3l-6 6" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const Plus = () => <svg viewBox="0 0 16 16" width="14" height="14"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>;
+
+function Demo() {
+  const [chk, setChk] = React.useState(true);
+  return (
+    <div className="grid">
+      <div className="block">
+        <div className="h">Button — variants</div>
+        <div className="row">
+          <Button variant="primary">Save</Button>
+          <Button variant="secondary">Send link</Button>
+          <Button variant="secondary" iconRight={<Ext />}>Open packet</Button>
+          <Button variant="ghost">Cancel</Button>
+          <Button variant="brand" iconLeft={<Plus />}>New contract</Button>
+          <Button variant="danger">Delete</Button>
+          <Button variant="primary" disabled>Disabled</Button>
+        </div>
+        <div className="row">
+          <Button size="sm" variant="secondary">Small</Button>
+          <Button size="md" variant="secondary">Medium</Button>
+          <Button size="lg" variant="primary">Large action</Button>
+        </div>
+      </div>
+
+      <div className="two">
+        <div className="block">
+          <div className="h">Badge</div>
+          <div className="row">
+            <Badge tone="green">H-2A</Badge>
+            <Badge tone="blue">Domestic</Badge>
+            <Badge tone="neutral" dot>Draft</Badge>
+            <Badge tone="amber">Pending</Badge>
+            <Badge tone="green" solid>Active</Badge>
+          </div>
+        </div>
+        <div className="block">
+          <div className="h">Status indicator</div>
+          <div className="row">
+            <StatusIndicator tone="success" label="Uploaded" />
+            <StatusIndicator tone="warning" label="Actions…" />
+            <StatusIndicator tone="pending" label="Delivered" />
+          </div>
+        </div>
+      </div>
+
+      <div className="two">
+        <div className="block">
+          <div className="h">Tag</div>
+          <div className="row">
+            <Tag color="green">Avocado Crew</Tag>
+            <Tag color="neutral">Orange Contract</Tag>
+            <Tag color="blue" onRemove={() => {}}>Weekly</Tag>
+          </div>
+        </div>
+        <div className="block">
+          <div className="h">Avatar</div>
+          <div className="row">
+            <Avatar name="Jose Hernandez" />
+            <Avatar name="Luz Jimenez" shape="rounded" />
+            <Avatar name="Carlos F" size={28} />
+          </div>
+        </div>
+      </div>
+
+      <div className="two">
+        <div className="block">
+          <div className="h">Input</div>
+          <Input placeholder="Jose Hernandez" defaultValue="Jose Hernandez" />
+          <Input invalid placeholder="Required field" />
+        </div>
+        <div className="block">
+          <div className="h">Select</div>
+          <Select options={["H-2A", "Domestic", "H-2B"]} defaultValue="H-2A" />
+          <div className="h" style={{ marginTop: 4 }}>Checkbox</div>
+          <div className="row">
+            <Checkbox checked={chk} onChange={() => setChk(!chk)} label="Direct deposit" />
+            <Checkbox indeterminate label="All rows" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

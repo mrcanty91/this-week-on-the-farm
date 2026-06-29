@@ -1,0 +1,18 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Elevation" subtitle="Subtle cool-tinted shadows — the UI leans on hairline borders" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+ body{margin:0;padding:26px;background:var(--surface-sunken);font-family:var(--font-sans)}
+ .row{display:flex;gap:22px;max-width:700px}
+ .c{display:flex;flex-direction:column;gap:10px;align-items:center}
+ .box{width:96px;height:62px;background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border-hairline)}
+ .m{font-family:var(--font-mono);font-size:11px;color:var(--text-muted)}
+</style></head><body>
+<div class="row">
+ <div class="c"><div class="box" style="box-shadow:var(--shadow-xs)"></div><span class="m">xs</span></div>
+ <div class="c"><div class="box" style="box-shadow:var(--shadow-sm)"></div><span class="m">sm</span></div>
+ <div class="c"><div class="box" style="box-shadow:var(--shadow-md)"></div><span class="m">md</span></div>
+ <div class="c"><div class="box" style="box-shadow:var(--shadow-lg)"></div><span class="m">lg</span></div>
+ <div class="c"><div class="box" style="box-shadow:var(--shadow-xl)"></div><span class="m">xl</span></div>
+</div>
+</body></html>

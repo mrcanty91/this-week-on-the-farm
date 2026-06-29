@@ -1,0 +1,23 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Neutral / slate ramp" subtitle="Cool gray ramp for text, borders & surfaces" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+ body{margin:0;padding:20px;background:var(--surface);font-family:var(--font-sans)}
+ .ramp{display:flex;gap:8px;max-width:700px}
+ .c{flex:1;display:flex;flex-direction:column;gap:6px}
+ .chip{height:56px;border-radius:var(--radius-sm);border:1px solid rgba(7,31,47,.08)}
+ .t{font-family:var(--font-mono);font-size:10px;color:var(--text-muted)}
+ .h{font-family:var(--font-mono);font-size:10px;color:var(--text-heading);font-weight:600}
+</style></head><body>
+<div class="ramp">
+ <div class="c"><div class="chip" style="background:var(--gray-900)"></div><span class="h">181C20</span><span class="t">900</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-700)"></div><span class="h">3F4750</span><span class="t">700 ·body</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-600)"></div><span class="h">5B646D</span><span class="t">600</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-500)"></div><span class="h">79828B</span><span class="t">500 ·muted</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-400)"></div><span class="h">9AA3A9</span><span class="t">400</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-300)"></div><span class="h">C9CFD4</span><span class="t">300</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-200)"></div><span class="h">E2E6E9</span><span class="t">200 ·border</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-100)"></div><span class="h">ECEEF0</span><span class="t">100</span></div>
+ <div class="c"><div class="chip" style="background:var(--gray-50)"></div><span class="h">F9FAFA</span><span class="t">50 ·bg</span></div>
+</div>
+</body></html>

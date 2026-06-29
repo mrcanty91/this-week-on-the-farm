@@ -1,0 +1,75 @@
+<!-- @dsCard group="Molecules" viewport="700x440" name="Molecules — tabs, fields, breadcrumb, nav" subtitle="Tabs · stat fields · form field · breadcrumb · sidebar item" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../styles.css" />
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 22px; background: var(--surface); }
+  .wrap { display: grid; grid-template-columns: 1fr 240px; gap: 24px; max-width: 700px; }
+  .block { display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px; }
+  .h { font: var(--type-caption); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--text-muted); }
+  .statrow { display: flex; gap: 32px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Tabs, StatField, FormField, Breadcrumb, SidebarItem, Badge, StatusIndicator, Input, Select } = window.SesoDesignSystem_373f56;
+const I = (d) => () => <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>;
+const Home = I("M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5");
+const Users = I("M16 19v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6");
+const Doc = I("M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5");
+
+function Demo() {
+  const [tab, setTab] = React.useState("Profile");
+  const [nav, setNav] = React.useState("workers");
+  return (
+    <div className="wrap">
+      <div>
+        <div className="block">
+          <div className="h">Breadcrumb</div>
+          <Breadcrumb items={[{label:"Workers", href:"#"}, "Jose Hernandez"]} />
+        </div>
+        <div className="block">
+          <div className="h">Tabs</div>
+          <Tabs items={["Profile","Contracts","Employment log","Notes"]} value={tab} onChange={setTab} />
+        </div>
+        <div className="block">
+          <div className="h">Stat fields</div>
+          <div className="statrow">
+            <StatField label="Type"><Badge tone="green">H-2A</Badge></StatField>
+            <StatField label="Status"><StatusIndicator tone="success" label="On Contract" /></StatField>
+            <StatField label="Employee ID" mono>18095</StatField>
+          </div>
+        </div>
+        <div className="block">
+          <div className="h">Form field</div>
+          <FormField label="Worker type" helper="Determines onboarding packet">
+            <Select options={["H-2A","Domestic"]} defaultValue="H-2A" />
+          </FormField>
+          <FormField label="Employee ID" required error="ID already in use">
+            <Input invalid defaultValue="18095" />
+          </FormField>
+        </div>
+      </div>
+      <div>
+        <div className="h" style={{marginBottom:10}}>Sidebar item</div>
+        <div style={{background:"var(--surface-dark)", borderRadius:"var(--radius-lg)", padding:10, display:"flex", flexDirection:"column", gap:4}}>
+          <SidebarItem icon={<Home/>} label="Dashboard" active={nav==="dash"} onClick={()=>setNav("dash")} />
+          <SidebarItem icon={<Users/>} label="Workers" active={nav==="workers"} onClick={()=>setNav("workers")} />
+          <SidebarItem icon={<Doc/>} label="Contracts" active={nav==="contracts"} onClick={()=>setNav("contracts")} />
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>
