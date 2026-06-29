@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="This week on your farm — weather-backed crop and crew calls in seconds." />
+  <title>Farm Weather Advisor</title>
+
+  <!--
+    Seso Design System — link this ONE file to inherit all tokens + fonts
+    (Plus Jakarta Sans UI, IBM Plex Mono data). styles.css @imports the token
+    layers; base.css sets body font/colors so the whole app inherits the brand.
+    Root-absolute path: the repo root is the web root (static deploy).
+  -->
+  <link rel="stylesheet" href="/seso-design-system/project/styles.css" />
+
+  <!--
+    App-specific styles layer on top of DS tokens (T11, Wave 2). The file is
+    referenced now so the shell is stable; it is created in Wave 2.
+  -->
+  <link rel="stylesheet" href="/styles.css" />
+
+  <!-- Speed up the first forecast round-trip (PRD §10: first cards ~10s). -->
+  <link rel="preconnect" href="https://api.open-meteo.com" crossorigin />
+  <link rel="preconnect" href="https://geocoding-api.open-meteo.com" crossorigin />
+
+  <!--
+    DS-component decision (flagged for Wave 1): the DS component bundle
+    (_ds_bundle.js) is React-based. This app is a no-build vanilla-ESM static
+    site, so Wave-1 UI tasks recreate DS visuals from tokens/styles.css per the
+    bundle README ("recreate pixel-perfectly... don't copy the prototype's
+    internal structure"). _ds_bundle.js is intentionally NOT linked here to keep
+    the shell free of a React dependency and guarantee zero console errors. If
+    Wave 1 chooses to mount the React components instead, add React + the bundle
+    here.
+  -->
+</head>
+<body>
+  <main class="app">
+    <!-- Landing value statement (PRD §6). -->
+    <header class="app__intro">
+      <p class="seso-eyebrow">This Week on the Farm</p>
+      <h1>Farm Weather Advisor</h1>
+      <p class="app__tagline">This week on your farm — weather-backed calls in seconds.</p>
+    </header>
+
+    <!-- Mount points owned by this shell. Modules render INTO these; no logic here. -->
+    <section id="location-form" aria-label="Location entry"></section>
+    <p id="message" role="status" aria-live="polite"></p>
+    <section id="forecast-strip" aria-label="7-day forecast"></section>
+    <section id="card-stack" aria-label="This week on the farm"></section>
+  </main>
+
+  <!-- ES-module entry point. Imports the module contract; wiring lands in Wave 2. -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
