@@ -263,3 +263,29 @@ test('with fewer than 4 cards returns all available cards without padding', () =
   // Can't manufacture phantom cards — just don't drop any
   assert.equal(result.length, 2, 'should not drop cards when below minimum');
 });
+
+/* ------------------------------------------------------------------ */
+/* Benign CW-02 (priority = WORKABLE_DAYS) survives capping            */
+/* Guards the cross-task contract documented at the pin step: rules-   */
+/* crew emits benign Start Times at WORKABLE_DAYS priority so the       */
+/* always-on card-floor holds even when many crops compete for slots.  */
+/* ------------------------------------------------------------------ */
+
+test('benign CW-02 (priority WORKABLE_DAYS) is pinned and survives the 6-card cap', () => {
+  // rules-crew benign state: CW-02 carries WORKABLE_DAYS priority, same as CW-01.
+  const BENIGN_START = makeCard(CARD_GROUPS.CREW, 'CW-02', CARD_PRIORITY.WORKABLE_DAYS);
+  // 8 cards total: 2 always-on Crew + 6 Crops of varying priority → must cap to 6.
+  const secondFrost = makeCard(CARD_GROUPS.CROPS, 'CR-04b', CARD_PRIORITY.FROST);
+  const input = [
+    WORKABLE_CARD, BENIGN_START,
+    FROST_CARD, secondFrost, SKIP_CARD, SPRAY_CARD, IRRIGATE_CARD,
+    makeCard(CARD_GROUPS.CROPS, 'CR-01b', CARD_PRIORITY.SPRAY_OR_SKIP),
+  ];
+  const result = prioritize(input);
+
+  assert.equal(result.length, CARD_TARGET_MAX, 'caps to CARD_TARGET_MAX');
+  assert.ok(result.length >= CARD_TARGET_MIN, 'never below the 4-card floor');
+  // BOTH always-on Crew cards survive capping despite 6 crops competing.
+  assert.ok(result.some(c => c.ruleId === 'CW-01'), 'CW-01 Workable Days survives');
+  assert.ok(result.some(c => c.ruleId === 'CW-02'), 'benign CW-02 Start Times survives');
+});

@@ -31,6 +31,12 @@ export async function geocode(place) {
   });
 
   const response = await fetch(`${GEOCODING_ENDPOINT}?${params}`);
+  // Surface a server/network error as a meaningful throw rather than letting a
+  // non-JSON error page blow up `.json()` with an opaque SyntaxError. A genuine
+  // "no match" still returns null below (the API answers 200 with no `results`).
+  if (!response.ok) {
+    throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
+  }
   const data = await response.json();
 
   const results = data.results;

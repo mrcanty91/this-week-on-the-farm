@@ -30,9 +30,11 @@ export function isInConus(loc) {
 
   if (!inBbox) return false;
 
-  // Augment when geocode metadata is present: require US country_code and
-  // exclude Alaska & Hawaii by admin1 name.
-  if (country_code !== undefined || admin1 !== undefined) {
+  // Augment only when country_code is present: require US and exclude AK/HI by
+  // admin1. Gating on country_code (not `|| admin1`) avoids falsely rejecting an
+  // `{admin1}`-only input — admin1 alone is meaningless without a country, and
+  // Open-Meteo always returns the two together anyway.
+  if (country_code !== undefined) {
     if (country_code !== 'US') return false;
     if (admin1 !== undefined && EXCLUDED_STATES.has(admin1)) return false;
   }

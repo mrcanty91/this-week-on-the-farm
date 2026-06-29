@@ -85,14 +85,22 @@ const NEUTRAL_CROPS_CARD = Object.freeze({
  *     CREW section second (Heat → Early Start → Workable Days).
  *
  * @param {Card[]} cards   crop + crew cards
- * @returns {Card[]}       ordered, capped to CARD_TARGET_MIN..MAX
+ * @returns {Card[]}       ordered and capped to at most CARD_TARGET_MAX cards.
+ *                         The 4-card floor is guaranteed UPSTREAM by the
+ *                         always-on rules (CW-01 Workable Days + CW-02 Start
+ *                         Times in Crew, irrigation + spray in Crops), not
+ *                         enforced here.
  */
 export function prioritize(cards) {
   // Step 1: inject neutral card if no CROPS group cards are present
   const hasCrops = cards.some(c => c.group === CARD_GROUPS.CROPS);
   const working = hasCrops ? [...cards] : [...cards, { ...NEUTRAL_CROPS_CARD }];
 
-  // Step 2: pin Workable Days — always kept regardless of cap
+  // Step 2: pin the always-on Crew cards — kept regardless of cap.
+  // This pins BOTH CW-01 Workable Days AND the benign-state CW-02 Start Times:
+  // rules-crew.js intentionally emits benign CW-02 with priority=WORKABLE_DAYS so
+  // the card-floor guarantee (always-on Start Times) survives capping here. If
+  // T5 ever gives benign CW-02 a distinct priority, update this pin accordingly.
   const pinned   = working.filter(c => c.priority === CARD_PRIORITY.WORKABLE_DAYS);
   const unpinned = working.filter(c => c.priority !== CARD_PRIORITY.WORKABLE_DAYS);
 

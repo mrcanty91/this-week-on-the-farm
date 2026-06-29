@@ -168,8 +168,9 @@ export function renderStrip(daily, doc = globalThis.document) {
     iconWrap.classList.add('forecast-strip__icon', 'weather-icon');
     iconWrap.dataset.weatherCode = String(daily.weather_code[i]);
     iconWrap.setAttribute('aria-label', iconLabel);
-    // In real DOM this would be innerHTML; fake DOM records it in textContent.
-    iconWrap.textContent = svg;
+    // innerHTML parses the inline SVG markup into real DOM nodes. textContent
+    // would render the markup as literal text in a browser (visible "<svg…>").
+    iconWrap.innerHTML = svg;
     col.appendChild(iconWrap);
 
     // ── Temps wrapper ─────────────────────────────────────────────────────────

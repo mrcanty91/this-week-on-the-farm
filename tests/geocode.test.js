@@ -143,3 +143,23 @@ test('geocode: response with absent results key returns null', async () => {
     restore();
   }
 });
+
+// ---------------------------------------------------------------------------
+// Test 5 — A non-OK HTTP status throws (not an opaque .json() SyntaxError,
+// and NOT silently treated as "no match"). A server error is distinct from
+// a genuine empty result.
+// ---------------------------------------------------------------------------
+test('geocode: non-OK HTTP status throws a meaningful error', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 503,
+    statusText: 'Service Unavailable',
+    json: async () => { throw new SyntaxError('Unexpected token < in JSON'); },
+  });
+  try {
+    await assert.rejects(() => geocode('Fresno'), /503|Geocoding API error/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});

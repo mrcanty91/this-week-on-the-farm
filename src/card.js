@@ -46,12 +46,12 @@
  */
 export function renderCard(card) {
   // Guard: requires a DOM environment (browser or test-injected globalThis.document).
-  // When called in a bare Node environment (e.g. the Wave 0 contract smoke test),
-  // `document` is undefined — signal "not implemented" in this context rather than
-  // surfacing an opaque ReferenceError.
+  // In a bare Node environment `document` is undefined — fail with a clear,
+  // actionable message rather than an opaque ReferenceError. (renderCard is fully
+  // implemented; it just needs a DOM.)
   // eslint-disable-next-line no-undef
   if (typeof document === 'undefined') {
-    throw new Error('not implemented: renderCard requires a DOM (run in browser or inject globalThis.document)');
+    throw new Error('renderCard requires a DOM environment — run in a browser or inject globalThis.document (see tests/card.test.js)');
   }
 
   // --- card root: DS Card organism surface ---

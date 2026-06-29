@@ -114,3 +114,17 @@ test('spec example: Toronto → false (via augmented path)', () => {
   // Toronto coord is inside the bbox; only fails when country_code supplied
   assert.equal(isInConus({ lat: 43.6, lon: -79.4, country_code: 'CA', admin1: 'Ontario' }), false);
 });
+
+/* ================================================================
+   admin1 present but country_code absent must NOT falsely reject —
+   admin1 alone is not enough to invoke the country exclusion path.
+   ================================================================ */
+
+test('admin1-only (no country_code), in-bbox → true (bbox governs)', () => {
+  assert.equal(isInConus({ lat: 36.7, lon: -119.8, admin1: 'California' }), true);
+});
+
+test('admin1-only Alaska name but in-bbox coord, no country_code → true (not rejected on admin1 alone)', () => {
+  // Without country_code we cannot trust admin1 to exclude; bbox is authoritative.
+  assert.equal(isInConus({ lat: 36.7, lon: -119.8, admin1: 'Alaska' }), true);
+});
