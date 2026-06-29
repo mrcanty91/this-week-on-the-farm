@@ -1,0 +1,91 @@
+/* ============================================================
+   SESO — COLOR TOKENS
+   Sampled directly from the marketing site + product UI.
+   Brand green #006E33 · Action blue #1D68BB · Sidebar navy #071F2F
+   ============================================================ */
+
+:root {
+  /* ---- Brand green (identity, success, status) ---- */
+  --green-700: #00592A;   /* deepest — pressed states on green */
+  --green-600: #006E33;   /* PRIMARY BRAND GREEN (logo, H-2A badge, checks) */
+  --green-500: #1E8E4E;   /* lighter accent */
+  --green-200: #BFE2CC;   /* tint border */
+  --green-100: #E3F2E9;   /* soft fill (success badge bg) */
+  --green-50:  #F1F8F4;   /* faintest wash */
+
+  /* ---- Action blue (app primary buttons, links, focus) ---- */
+  --blue-700: #14538F;    /* pressed */
+  --blue-600: #1D68BB;    /* PRIMARY ACTION (Save, primary buttons, links) */
+  --blue-500: #2E7FD6;    /* hover-light / accents */
+  --blue-200: #B9D5EF;
+  --blue-100: #E2EEF9;    /* selected / info fill */
+  --blue-50:  #F1F7FC;
+
+  /* ---- Navy (app chrome: sidebar, dark surfaces) ---- */
+  --navy-900: #071F2F;    /* sidebar background */
+  --navy-800: #0E2A3C;    /* sidebar hover */
+  --navy-700: #142A3A;    /* sidebar active row */
+  --navy-600: #1F3E52;    /* borders on dark */
+
+  /* ---- Neutral / slate (cool gray ramp) ---- */
+  --gray-900: #181C20;    /* headings, near-black body */
+  --gray-800: #2A3036;
+  --gray-700: #3F4750;    /* strong body text */
+  --gray-600: #5B646D;    /* body / secondary text */
+  --gray-500: #79828B;    /* muted text, captions */
+  --gray-400: #9AA3A9;    /* placeholder, disabled icon, pending */
+  --gray-300: #C9CFD4;    /* strong borders, dividers */
+  --gray-200: #E2E6E9;    /* default border */
+  --gray-100: #ECEEF0;    /* hairline, table row border */
+  --gray-50:  #F9FAFA;    /* subtle bg, table header */
+  --white:    #FFFFFF;
+
+  /* ---- Semantic status ---- */
+  --success:      #006E33;
+  --success-bg:   #E3F2E9;
+  --warning:      #B45309;   /* amber text */
+  --warning-icon: #EAB308;   /* warning glyph */
+  --warning-bg:   #FDF3D7;
+  --danger:       #C0362C;
+  --danger-bg:    #FBE9E7;
+  --info:         #1D68BB;
+  --info-bg:      #E2EEF9;
+  --pending:      #9AA3A9;   /* neutral / "Delivered" awaiting */
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components, not raw ramps
+     ============================================================ */
+
+  /* Brand */
+  --brand:              var(--green-600);
+  --brand-strong:       var(--green-700);
+  --brand-tint:         var(--green-100);
+
+  /* Surfaces */
+  --surface:            var(--white);          /* cards, panels */
+  --surface-sunken:     var(--gray-50);        /* page bg, table headers */
+  --surface-dark:       var(--navy-900);       /* sidebar, dark chrome */
+  --surface-dark-hover: var(--navy-800);
+  --surface-dark-active:var(--navy-700);
+
+  /* Text */
+  --text-heading:       var(--gray-900);
+  --text-body:          var(--gray-700);
+  --text-muted:         var(--gray-500);
+  --text-placeholder:   var(--gray-400);
+  --text-on-dark:       var(--white);
+  --text-on-dark-muted: #93A6B2;
+  --text-on-brand:      var(--white);
+  --text-link:          var(--blue-600);
+
+  /* Actions */
+  --action:             var(--blue-600);
+  --action-hover:       var(--blue-700);
+  --action-text:        var(--white);
+
+  /* Borders & focus */
+  --border:             var(--gray-200);
+  --border-strong:      var(--gray-300);
+  --border-hairline:    var(--gray-100);
+  --focus-ring:         var(--blue-500);
+}

@@ -1,0 +1,20 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Corner radius" subtitle="Soft radii echoing the rounded logo capsule" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+ body{margin:0;padding:22px;background:var(--surface);font-family:var(--font-sans)}
+ .row{display:flex;gap:18px;max-width:700px;align-items:flex-end}
+ .c{display:flex;flex-direction:column;gap:8px;align-items:center}
+ .box{width:64px;height:64px;background:var(--green-100);border:1.5px solid var(--green-600)}
+ .m{font-family:var(--font-mono);font-size:11px;color:var(--text-muted)}
+ .pill{width:88px;height:36px;background:var(--green-100);border:1.5px solid var(--green-600);border-radius:999px}
+</style></head><body>
+<div class="row">
+ <div class="c"><div class="box" style="border-radius:4px"></div><span class="m">xs · 4</span></div>
+ <div class="c"><div class="box" style="border-radius:6px"></div><span class="m">sm · 6</span></div>
+ <div class="c"><div class="box" style="border-radius:8px"></div><span class="m">md · 8</span></div>
+ <div class="c"><div class="box" style="border-radius:12px"></div><span class="m">lg · 12</span></div>
+ <div class="c"><div class="box" style="border-radius:16px"></div><span class="m">xl · 16</span></div>
+ <div class="c"><div class="pill"></div><span class="m">pill · 999</span></div>
+</div>
+</body></html>

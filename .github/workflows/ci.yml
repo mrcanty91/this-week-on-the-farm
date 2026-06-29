@@ -1,0 +1,39 @@
+name: CI
+
+# Run against every PR (and pushes to main) so the shared WAVE 0 contract and
+# the Wave-1 module tests are verified before anything merges.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Syntax + unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Node 22 LTS — the test runner's glob positional args (used by
+          # `npm test`) are stable from Node 22.
+          node-version: 22
+
+      # No dependencies to install — this is a no-build vanilla-ESM static app
+      # and tests use Node's built-in runner (node --test).
+
+      - name: Syntax check (parse every module)
+        run: npm run check
+
+      - name: Unit tests (node --test)
+        run: npm test

@@ -1,0 +1,22 @@
+<!-- @dsCard group="Colors" viewport="700x160" name="Navy — app chrome" subtitle="Sidebar and dark surfaces; text colors used on navy" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+ body{margin:0;padding:20px;background:var(--surface);font-family:var(--font-sans)}
+ .ramp{display:flex;gap:10px;max-width:700px}
+ .c{flex:1;display:flex;flex-direction:column;gap:6px}
+ .chip{height:60px;border-radius:var(--radius-md);border:1px solid rgba(7,31,47,.08)}
+ .t{font-family:var(--font-mono);font-size:11px;color:var(--text-muted)}
+ .h{font-family:var(--font-mono);font-size:11px;color:var(--text-heading);font-weight:600}
+ .demo{margin-top:14px;max-width:700px;background:var(--navy-900);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:18px;align-items:center}
+ .demo .on{color:var(--text-on-dark);font-size:var(--text-base);font-weight:600}
+ .demo .mut{color:var(--text-on-dark-muted);font-size:var(--text-sm)}
+</style></head><body>
+<div class="ramp">
+ <div class="c"><div class="chip" style="background:var(--navy-900)"></div><span class="h">#071F2F</span><span class="t">900 ·sidebar</span></div>
+ <div class="c"><div class="chip" style="background:var(--navy-800)"></div><span class="h">#0E2A3C</span><span class="t">800 ·hover</span></div>
+ <div class="c"><div class="chip" style="background:var(--navy-700)"></div><span class="h">#142A3A</span><span class="t">700 ·active</span></div>
+ <div class="c"><div class="chip" style="background:var(--navy-600)"></div><span class="h">#1F3E52</span><span class="t">600 ·border</span></div>
+</div>
+<div class="demo"><span class="on">Workers</span><span class="mut">Acme Fruits, Inc.</span></div>
+</body></html>

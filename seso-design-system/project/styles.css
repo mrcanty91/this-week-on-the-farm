@@ -1,0 +1,12 @@
+/* ============================================================
+   SESO DESIGN SYSTEM — global entry point.
+   Consumers link THIS file only. Import order: fonts → tokens.
+   Keep this file as @import lines only (no rules).
+   ============================================================ */
+
+@import "tokens/fonts.css";
+@import "tokens/colors.css";
+@import "tokens/typography.css";
+@import "tokens/spacing.css";
+@import "tokens/shape.css";
+@import "tokens/base.css";

@@ -1,0 +1,29 @@
+/*
+ * styles.css — App-specific styles (T11, Wave 2). WAVE 0: PLACEHOLDER.
+ *
+ * Owned by T11. Layer app layout (single-column, mobile-legible, Crops/Crew
+ * grouping) on top of the Seso DS tokens/styles.css — NO hardcoded color,
+ * spacing, or type; use the DS custom properties (--space-*, --type-*, --brand,
+ * --action, etc.). This placeholder exists only so the shell links resolve with
+ * zero 404s/console errors in WAVE 0; T11 replaces it.
+ */
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.app__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.app__tagline {
+  color: var(--text-muted);
+  font: var(--type-subheading);
+}

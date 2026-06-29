@@ -1,0 +1,63 @@
+<!-- @dsCard group="Organisms" viewport="760x540" name="Organisms — card, table, top bar" subtitle="Card · DataTable · TopBar (composed from atoms & molecules)" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../styles.css" />
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 22px; background: var(--surface-sunken); }
+  .stack { display: flex; flex-direction: column; gap: 18px; max-width: 760px; }
+  .h { font: var(--type-caption); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--text-muted); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Card, DataTable, TopBar, Breadcrumb, Button, Badge, StatusIndicator } = window.SesoDesignSystem_373f56;
+
+const rows = [
+  { id: "33516", name: "Clinio Canales Linares", contract: "Avocado Contract", i9: "up", visa: "up", link: "read" },
+  { id: "50031", name: "Ademaro Madera Carrillo", contract: "Orange Contract", i9: "warn", visa: "warn", link: "read" },
+  { id: "41566", name: "Luz Jimenez Galvan", contract: "Avocado Contract", i9: "up", visa: "warn", link: "deliv" },
+];
+const cell = { up:<StatusIndicator tone="success" label="Uploaded"/>, warn:<StatusIndicator tone="warning" label="Actions…"/>, read:<StatusIndicator tone="success" label="Read"/>, deliv:<StatusIndicator tone="pending" label="Delivered"/> };
+const columns = [
+  { key:"name", header:"Name", render:r=>(<div style={{display:"flex",flexDirection:"column"}}><a href="#" style={{color:"var(--text-link)",fontWeight:600}}>{r.name}</a><span style={{color:"var(--text-muted)",fontSize:"var(--text-xs)"}}>{r.contract}</span></div>) },
+  { key:"id", header:"ID", mono:true, sortable:true },
+  { key:"i9", header:"I-94", render:r=>cell[r.i9] },
+  { key:"visa", header:"H-2A visa", render:r=>cell[r.visa] },
+  { key:"link", header:"Link status", render:r=>cell[r.link] },
+  { key:"act", header:"", align:"right", render:()=>(<div style={{display:"flex",gap:8,justifyContent:"flex-end"}}><Button size="sm" variant="secondary">Send link</Button><Button size="sm" variant="secondary">Open packet</Button></div>) },
+];
+
+function Demo() {
+  const [sel, setSel] = React.useState(["33516"]);
+  return (
+    <div className="stack">
+      <div>
+        <div className="h">TopBar</div>
+        <div style={{border:"1px solid var(--border)", borderRadius:"var(--radius-lg)", overflow:"hidden"}}>
+          <TopBar
+            left={<Breadcrumb items={[{label:"Workers",href:"#"},"Jose Hernandez"]} />}
+            right={<><a href="#">Contact</a><a href="#">Sign out</a></>}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="h">Card + DataTable</div>
+        <Card title="Digital onboarding" subtitle="6 workers" actions={<Button size="sm" variant="primary">Add worker</Button>} padded={false}>
+          <DataTable columns={columns} rows={rows} selectable selected={sel} onSelect={setSel} />
+        </Card>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>
