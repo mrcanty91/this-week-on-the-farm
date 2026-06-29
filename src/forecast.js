@@ -25,7 +25,7 @@
  * irrigation. See the ET0_MM_TO_IN note in config.js (PM-confirmed 2026-06-29).
  */
 
-import { buildForecastParams } from './config.js';
+import { buildForecastParams, FORECAST_ENDPOINT } from './config.js';
 
 /**
  * One hour of the normalized hourly series. All arrays in `hourly` are parallel
@@ -81,9 +81,43 @@ import { buildForecastParams } from './config.js';
  * @returns {Promise<NormalizedForecast>}
  */
 export async function getForecast(coords) {
-  // WAVE 0 stub — implemented in Wave 1 (T2). Reference the param builder so the
-  // shared contract is exercised and the import resolves.
-  void buildForecastParams;
-  void coords;
-  throw new Error('not implemented: getForecast (Wave 1 / T2)');
+  const { lat, lon } = coords;
+  const params = buildForecastParams(lat, lon);
+  const url = `${FORECAST_ENDPOINT}?${params}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`getForecast: HTTP ${response.status} from Open-Meteo`);
+  }
+
+  const data = await response.json();
+
+  return {
+    latitude: data.latitude,
+    longitude: data.longitude,
+    timezone: data.timezone,
+    utc_offset_seconds: data.utc_offset_seconds,
+    hourly: {
+      time: data.hourly.time,
+      temperature_2m: data.hourly.temperature_2m,
+      apparent_temperature: data.hourly.apparent_temperature,
+      precipitation: data.hourly.precipitation,
+      precipitation_probability: data.hourly.precipitation_probability,
+      wind_speed_10m: data.hourly.wind_speed_10m,
+      weather_code: data.hourly.weather_code,
+    },
+    daily: {
+      time: data.daily.time,
+      // ET₀ — PASS THROUGH UNCHANGED (PM-CONFIRMED CONTRACT).
+      // The API returns et0_fao_evapotranspiration already in INCHES because
+      // the request includes precipitation_unit=inch. Do NOT multiply by
+      // ET0_MM_TO_IN — that would double-convert (0.303 → 0.012 in) and
+      // silently suppress every irrigation call. See file header + config.js.
+      et0: data.daily.et0_fao_evapotranspiration,
+      precipitation_sum: data.daily.precipitation_sum,
+      temperature_2m_max: data.daily.temperature_2m_max,
+      temperature_2m_min: data.daily.temperature_2m_min,
+      weather_code: data.daily.weather_code,
+    },
+  };
 }
