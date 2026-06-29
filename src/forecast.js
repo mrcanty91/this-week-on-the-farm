@@ -22,7 +22,7 @@
  * §7), the live Open-Meteo API already returns et0_fao_evapotranspiration in
  * inches. T2 therefore passes that value through unchanged — it does NOT
  * multiply by ET0_MM_TO_IN, which would double-convert and silently break
- * irrigation. See the ET0_MM_TO_IN note in config.js (escalated to PM).
+ * irrigation. See the ET0_MM_TO_IN note in config.js (PM-confirmed 2026-06-29).
  */
 
 import { buildForecastParams } from './config.js';

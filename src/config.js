@@ -150,7 +150,7 @@ export const TIMEZONE = 'auto';
 /**
  * mm → inch factor. Mandated as a named constant by the PRD/PLAN.
  *
- * ⚠️ SMOKE-TEST FINDING (live Open-Meteo, 2026-06-29, Fresno CA) — ESCALATED:
+ * ⚠️ SMOKE-TEST FINDING (live Open-Meteo, 2026-06-29) — PM-CONFIRMED 2026-06-29:
  * The PRD §7 directive assumes `precipitation_unit=inch` does NOT convert ET₀
  * and tells engineering to apply ÷25.4 manually. The LIVE API contradicts this:
  *   - default (no precipitation_unit): et0 = [7.71, 8.40, 7.50] mm  (units: "mm")
@@ -163,7 +163,7 @@ export const TIMEZONE = 'auto';
  * suppress every irrigation call — the exact failure the Memo warned about,
  * in the opposite direction.
  *
- * SAFE WAVE-0 CONTRACT (pending PM confirmation, see §12 decision log):
+ * CONFIRMED CONTRACT (PM-approved 2026-06-29; PRD §12 decision log):
  *   T2 (forecast.js) treats the API's et0_fao_evapotranspiration as INCHES and
  *   passes it through WITHOUT multiplying by this factor. Keep this constant for
  *   the alternative path only — i.e. IF ET₀ is ever fetched in mm (a separate

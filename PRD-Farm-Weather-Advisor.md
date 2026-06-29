@@ -315,6 +315,7 @@ of scope; this is a single-session prototype.
 | 2026-06-29 | Build UI on Seso Design System; follow atomic structure/conventions | System provided in folder (`seso-design-system/`); reuse atoms→molecules→organisms + tokens | PM |
 | 2026-06-29 | `timezone=auto` from user location confirmed as day-one scope | Correct hourly/day logic and time-of-day copy | PM |
 | 2026-06-29 | Engineering converts ET₀ mm→inch (÷25.4) | Simple bounded calc; don't rely on `precipitation_unit` for ET₀ | PM |
+| 2026-06-29 | **ET₀ correction (supersedes row above):** live-API smoke test shows `precipitation_unit=inch` DOES convert ET₀ to inches. forecast.js passes ET₀ through in inches with **NO** manual ÷25.4 (a second conversion would double-convert and silently suppress irrigation). | WAVE 0 smoke test; prevents silent wrong-irrigation calls | PM/ENG |
 | 2026-06-29 | Keep OSHA copy as-is for POC | Demoable now; tighten regulatory wording in Phase 2 | PM |
 | TBD | Rules-engine implementation pattern | Flagged for engineering | ENG |
 | TBD | Geocoding + geolocation handling | Flagged for engineering | ENG |
