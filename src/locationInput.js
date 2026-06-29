@@ -13,21 +13,19 @@
  * Spec: PRD §5 (user stories 2, 8) and §6 ([ENG FLAG] geolocation denial
  * fallback + ambiguous/not-found handling).
  *
- * DS tokens used (vanilla DOM, NOT React):
- *   --action / --action-text / --action-hover  (buttons)
- *   --border / --border-strong                 (input border)
- *   --radius-md                                (inputs, primary button — 8px)
- *   --radius-sm                                (secondary button)
+ * DS tokens used (vanilla DOM, NOT React) — only tokens actually applied below:
+ *   --action / --action-text                   (primary button)
+ *   --border / --border-strong                 (input + secondary button border)
+ *   --radius-md                                (input, primary button — 8px)
+ *   --radius-sm                                (secondary button, message area)
  *   --field-height / --control-height          (sizing)
  *   --surface / --surface-sunken               (backgrounds)
- *   --text-body / --text-muted / --text-placeholder (text)
+ *   --text-body / --text-muted                 (text)
  *   --danger / --danger-bg                     (error messages)
- *   --focus-ring / --ring                      (focus)
  *   --space-2 / --space-3 / --space-4          (spacing)
  *   --duration-fast / --ease-standard          (transitions)
- *   --shadow-xs                                (input lift)
  *   --font-sans                                (typography)
- *   --text-base / --text-sm                    (font sizes)
+ *   --text-md / --text-base / --text-sm        (font sizes — input/buttons/message)
  *   --weight-semibold                          (button weight)
  *
  * @typedef {import('./geocode.js').GeocodeResult} GeocodeResult
@@ -65,7 +63,7 @@ function createDsInput(placeholder) {
     display: 'flex',
     alignItems: 'center',
     height: 'var(--field-height)',
-    padding: '0 12px',
+    padding: '0 var(--space-3)',
     background: 'var(--surface)',
     border: '1px solid var(--border-strong)',
     borderRadius: 'var(--radius-md)',
@@ -84,7 +82,7 @@ function createDsInput(placeholder) {
     outline: 'none',
     background: 'transparent',
     fontFamily: 'var(--font-sans)',
-    fontSize: 'var(--text-base)',
+    fontSize: 'var(--text-md)', // match the DS Input atom (16px), not --text-base (14px)
     color: 'var(--text-body)',
   });
   input.setAttribute('aria-label', placeholder);
@@ -204,10 +202,10 @@ function clearMessage(msgEl) {
  * @returns {void}
  */
 export function mountLocationInput(hostEl, onResolve, deps = {}) {
-  // Guard: requires a DOM (browser or test fake). Keeps contract.test.js Wave-0
-  // line intact — it calls without a fake document, so the guard fires there.
+  // Guard: requires a DOM (browser or test-injected globalThis.document). Fail
+  // with a clear, actionable message rather than an opaque ReferenceError.
   if (typeof document === 'undefined') {
-    throw new Error('not implemented: mountLocationInput requires a DOM environment');
+    throw new Error('mountLocationInput requires a DOM environment — run in a browser or inject globalThis.document');
   }
 
   const geocodeFn = deps.geocode ?? _geocode;
@@ -281,7 +279,15 @@ export function mountLocationInput(hostEl, onResolve, deps = {}) {
       return;
     }
     clearMessage(msgEl);
-    const result = await geocodeFn(place);
+    let result;
+    try {
+      result = await geocodeFn(place);
+    } catch (_err) {
+      // Network / server / parse failure — surface a graceful inline error
+      // (PRD §6: never blank-screen) instead of an unhandled promise rejection.
+      showMessage(msgEl, 'Could not reach the geocoding service — check your connection.', 'error');
+      return;
+    }
     if (!result) {
       showMessage(msgEl, "Couldn't find that place — try another.", 'error');
       return;
@@ -290,5 +296,7 @@ export function mountLocationInput(hostEl, onResolve, deps = {}) {
   }
 
   geoBtn.addEventListener('click', handleGeoClick);
-  submitBtn.addEventListener('click', handleSubmit);
+  // Void the returned promise so the async handler never leaks an unhandled
+  // rejection through the event system (handleSubmit catches its own errors).
+  submitBtn.addEventListener('click', () => { void handleSubmit(); });
 }

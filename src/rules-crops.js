@@ -118,19 +118,30 @@ function findSprayWindow(hourly) {
 }
 
 /**
- * Simple day-of-week label from a 0-based hour index within a 7-day forecast.
- * @param {number} hourIndex
- * @returns {string} e.g. "Monday"
+ * Weekday name for an ISO local date/timestamp string ("YYYY-MM-DD" or
+ * "YYYY-MM-DDTHH:00"). Parses the date part as LOCAL (via explicit y/m/d) to
+ * avoid the UTC-midnight off-by-one that `new Date('YYYY-MM-DD')` would hit.
+ * @param {string} isoDate
+ * @returns {string|null} e.g. "Monday", or null if unparseable
  */
-function dayLabel(hourIndex) {
-  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  // The forecast is aligned to the local timezone; day 0 is the first calendar day.
-  // Use the hour index to find which day of the 7-day window.
-  const dayIndex = Math.floor(hourIndex / 24) % 7;
-  // We don't know the actual start weekday from the fixture, so use the day-within-window
-  // and label it relative to today. For the purposes of card copy, use "Day N" fallback
-  // unless we have the time array. In production use, hourly.time[hourIndex] is available.
-  return DAYS[dayIndex] ?? `Day ${dayIndex + 1}`;
+function weekdayFromISODate(isoDate) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate ?? '');
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+/**
+ * Day-of-week label for the hour at `hourIndex`, derived from the actual
+ * `hourly.time` timestamps (NOT from a Sunday-anchored index — that named the
+ * wrong weekday whenever the forecast didn't start on Sunday).
+ * @param {string[]} time   hourly.time array (index-aligned)
+ * @param {number} hourIndex
+ * @returns {string} e.g. "Wednesday" (falls back to "Day N" if time is missing)
+ */
+function dayLabel(time, hourIndex) {
+  return weekdayFromISODate(time?.[hourIndex]) ?? `Day ${Math.floor(hourIndex / 24) + 1}`;
 }
 
 /**
@@ -168,19 +179,27 @@ function cr01(forecast) {
     return { card: null, counterRuleActive: true };
   }
 
+  // Name the day at the end of the 48h look-ahead window for the §9 day reference
+  // ("Skip Irrigation Through Thursday" in the PRD example).
+  const lookaheadDayIdx = Math.min(
+    Math.floor(IRRIGATION_LOOKAHEAD_HOURS / 24),
+    daily.time.length - 1,
+  );
+  const throughDay = weekdayFromISODate(daily.time[lookaheadDayIdx]) ?? 'this week';
+
   const card = {
     group: 'CROPS',
     title: 'Skip Irrigation This Week',
-    call: `Skip irrigation — ${fmt(totalPrecip48)}in of rain forecast in the next 48 hours.`,
+    call: `Skip irrigation through ${throughDay} — ${fmt(totalPrecip48)}in of rain forecast.`,
     numberLine: `${fmt(totalPrecip48)}in precipitation forecast in the next 48 hours.`,
     confidence: `Rain forecast over next 48h covers irrigation need. High confidence.`,
     ruleId: 'CR-01',
     priority: CARD_PRIORITY.SPRAY_OR_SKIP,
   };
 
-  // Enforce char limits
+  // Enforce char limit on the call (longest day name = "Wednesday")
   if (card.call.length > 80) {
-    card.call = `Skip irrigation — ${fmt(totalPrecip48)}in of rain coming in 48 hours.`;
+    card.call = `Skip irrigation through ${throughDay} — ${fmt(totalPrecip48)}in rain due.`;
   }
 
   return { card, counterRuleActive: false };
@@ -203,28 +222,31 @@ function cr02(forecast, skipRuleFired, counterRuleActive) {
   const { hourly, daily } = forecast;
   const avgEt0 = meanEt0(daily.et0);
   const rainIn48h = hasRainInHours(hourly.precipitation, IRRIGATION_LOOKAHEAD_HOURS);
+  // §9 day reference for the action; §9 also forbids variable names like "ET₀"
+  // in user-facing copy — phrase the metric as plain "crop water use".
+  const day0 = weekdayFromISODate(daily.time[0]) ?? 'this week';
 
-  // Counter-rule path: ET₀ was already checked to be high; fire irrigate regardless of precip
+  // Counter-rule path: water demand was already checked to be high; fire irrigate regardless of precip
   if (counterRuleActive) {
     return {
       group: 'CROPS',
       title: 'Irrigate Despite Forecast Rain',
-      call: `Irrigate now — ET₀ deficit of ${fmt(avgEt0)}in/day is too high to wait on likely rain.`,
-      numberLine: `ET₀ ${fmt(avgEt0)}in/day — above the ${fmt(ET0_DEFICIT_HIGH_IN_PER_DAY)}in/day high-deficit threshold.`,
-      confidence: `High ET₀ deficit and low rain probability — irrigation cannot wait. High confidence.`,
+      call: `Irrigate by ${day0} — crop water use of ${fmt(avgEt0)}in/day is too high to wait.`,
+      numberLine: `Crop water use ${fmt(avgEt0)}in/day — above the ${fmt(ET0_DEFICIT_HIGH_IN_PER_DAY)}in/day high-deficit threshold.`,
+      confidence: `High crop water demand and low rain probability — irrigation cannot wait. High confidence.`,
       ruleId: 'CR-02',
       priority: CARD_PRIORITY.IRRIGATE,
     };
   }
 
-  // Standard CR-02: ET₀ > threshold AND no rain in 48h
+  // Standard CR-02: water demand > threshold AND no rain in 48h
   if (avgEt0 > IRRIGATE_ET0_IN_PER_DAY && !rainIn48h) {
     return {
       group: 'CROPS',
       title: 'Irrigate This Week',
-      call: `Irrigate fields — ET₀ is ${fmt(avgEt0)}in/day with no rain forecast in 48 hours.`,
-      numberLine: `ET₀ ${fmt(avgEt0)}in/day — above ${fmt(IRRIGATE_ET0_IN_PER_DAY)}in/day threshold. No rain in 48h.`,
-      confidence: `High ET₀ and no rain forecast in next 48 hours. High confidence.`,
+      call: `Irrigate fields by ${day0} — crop water use ${fmt(avgEt0)}in/day, no rain in 48h.`,
+      numberLine: `Crop water use ${fmt(avgEt0)}in/day — above ${fmt(IRRIGATE_ET0_IN_PER_DAY)}in/day threshold. No rain in 48h.`,
+      confidence: `High crop water use and no rain forecast in next 48 hours. High confidence.`,
       ruleId: 'CR-02',
       priority: CARD_PRIORITY.IRRIGATE,
     };
@@ -248,7 +270,7 @@ function cr03(forecast) {
 
   if (window) {
     const { hourIndex, wind, temp } = window;
-    const day = dayLabel(hourIndex);
+    const day = dayLabel(hourly.time, hourIndex);
     return {
       group: 'CROPS',
       title: 'Spray Window Open',
@@ -301,7 +323,7 @@ function cr04(forecast) {
 
   if (minHourIndex === -1) return null; // no frost
 
-  const day = dayLabel(minHourIndex);
+  const day = dayLabel(hourly.time, minHourIndex);
   const tempStr = `${Math.round(minTemp)}°F`;
 
   if (hardFrost) {

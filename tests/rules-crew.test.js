@@ -108,6 +108,20 @@ describe('CW-01 Workable Days', () => {
     assert.match(cw01.numberLine, /6/, 'Expected 6 workable days after rain disqualifier');
   });
 
+  test('does not disqualify a day when rain straddles midnight into the next day', () => {
+    // One rainy hour at the last hour of day 0 (h=23) and one at the first hour
+    // of day 1 (h=24). Each day individually has only a single rainy hour, so
+    // neither has >1h SUSTAINED rain — all 7 days stay workable. The rain run
+    // must be bounded to the day; otherwise h=23 + h=24 read as a 2h run.
+    const precipitation = Array(168).fill(0);
+    precipitation[23] = 0.1; // day 0, hour 23
+    precipitation[24] = 0.1; // day 1, hour 0
+    const forecast = makeForecast({ hourly: { precipitation } });
+    const cards = crewCards(forecast);
+    const cw01 = getCard(cards, 'CW-01');
+    assert.match(cw01.numberLine, /7 of 7/, 'midnight-straddling rain must not disqualify either day');
+  });
+
   test('excludes a day whose max temp reaches 100°F or above', () => {
     // temperature_2m_max for day 0 = 100°F (≥100 disqualifies)
     const temperature_2m_max = [100, 82, 82, 82, 82, 82, 82];

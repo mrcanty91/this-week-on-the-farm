@@ -48,9 +48,19 @@ function makeForecast({
   const HOURS = 7 * 24; // 168 hours
   const DAYS = 7;
 
+  // Advance the calendar day every 24 hours (was `i % 24`, which collapsed all
+  // hours onto June 29). Emit LOCAL "YYYY-MM-DDTHH:00" strings without a UTC 'Z',
+  // matching Open-Meteo's timezone=auto format so day-of-week labels are correct.
+  // June 29, 2026 is a MONDAY — a non-Sunday start, which exercises the dayLabel fix.
   const times = Array.from({ length: HOURS }, (_, i) => {
-    const d = new Date(2026, 5, 29, i % 24, 0, 0); // June 29, 2026
-    return d.toISOString();
+    const day = 29 + Math.floor(i / 24);
+    const hour = i % 24;
+    const d = new Date(2026, 5, day, hour, 0, 0);
+    const Y = d.getFullYear();
+    const M = String(d.getMonth() + 1).padStart(2, '0');
+    const D = String(d.getDate()).padStart(2, '0');
+    const H = String(hour).padStart(2, '0');
+    return `${Y}-${M}-${D}T${H}:00`;
   });
 
   const dailyTimes = Array.from({ length: DAYS }, (_, i) => {
@@ -486,5 +496,59 @@ describe('§9 Card spec compliance', () => {
     const cards029 = cropCards(forecast029);
     const irrigate029 = cards029.find(c => c.ruleId === 'CR-02');
     assert.equal(irrigate029, undefined, '0.29in ET₀ (below 0.3in threshold) should NOT fire CR-02');
+  });
+});
+
+// ─── §9 day-reference + plain-language copy (review fixes) ─────────────────────
+
+const WEEKDAY_RE = /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/;
+
+/** Expected weekday for the Nth forecast day, derived the SAME way the fixture builds time. */
+function expectedWeekday(dayOffset) {
+  return new Date(2026, 5, 29 + dayOffset).toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+describe('day labels derive from hourly.time (calendar-aligned)', () => {
+  test('CR-04 frost names the ACTUAL weekday of the frost hour (non-Sunday start)', () => {
+    // Frost at day 3, hour 5 (index 77). Forecast starts Monday June 29, so day 3 is Thursday.
+    const temp = Array(168).fill(72);
+    temp[77] = 30;
+    const forecast = makeForecast({ hourly_temp: temp });
+    const frost = cropCards(forecast).find(c => c.ruleId === 'CR-04');
+    assert.ok(frost, 'CR-04 should fire');
+    const expected = expectedWeekday(3); // Thursday
+    assert.ok(
+      frost.call.includes(expected) || frost.numberLine.includes(expected),
+      `frost copy should name ${expected}; got call="${frost.call}" numberLine="${frost.numberLine}"`,
+    );
+  });
+
+  test('CR-03 spray names the actual weekday of the window hour', () => {
+    // Benign defaults → first hour (day 0 = Monday) is a valid spray window.
+    const spray = cropCards(makeForecast()).find(c => c.ruleId === 'CR-03');
+    assert.ok(spray, 'CR-03 should fire');
+    assert.ok(spray.call.includes(expectedWeekday(0)), `spray call should name ${expectedWeekday(0)}; got "${spray.call}"`);
+  });
+});
+
+describe('§9 copy: day reference present; no variable-name jargon', () => {
+  test('CR-01 call includes a day reference', () => {
+    const precip = Array(168).fill(0);
+    precip[10] = 0.35; // ≥0.3in within 48h → Skip fires
+    const skip = cropCards(makeForecast({ hourly_precip: precip })).find(c => c.ruleId === 'CR-01');
+    assert.ok(skip, 'CR-01 should fire');
+    assert.match(skip.call, WEEKDAY_RE, `CR-01 call needs a day reference; got "${skip.call}"`);
+  });
+
+  test('CR-02 call includes a day reference and no "ET₀" jargon', () => {
+    const irrigate = cropCards(makeForecast({
+      hourly_precip: Array(168).fill(0),
+      daily_et0: Array(7).fill(0.31),
+    })).find(c => c.ruleId === 'CR-02');
+    assert.ok(irrigate, 'CR-02 should fire');
+    assert.match(irrigate.call, WEEKDAY_RE, `CR-02 call needs a day reference; got "${irrigate.call}"`);
+    for (const field of [irrigate.call, irrigate.numberLine, irrigate.confidence]) {
+      assert.ok(!/ET₀|ET0/.test(field), `user-facing copy must not contain the variable name ET₀: "${field}"`);
+    }
   });
 });

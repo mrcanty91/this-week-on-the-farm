@@ -22,15 +22,18 @@ import {
 } from './config.js';
 
 /**
- * Count how many consecutive hours have non-zero precipitation starting at index i.
+ * Count how many consecutive hours have non-zero precipitation starting at index i,
+ * stopping at `maxIdx` (exclusive). Callers pass the day's end index so a rain run
+ * never bleeds across the midnight boundary into the next day's hours.
  * Returns the count of the run (may be 0).
  * @param {number[]} precipitation
  * @param {number} startIdx
+ * @param {number} [maxIdx] exclusive upper bound (defaults to the array length)
  * @returns {number}
  */
-function rainRunLength(precipitation, startIdx) {
+function rainRunLength(precipitation, startIdx, maxIdx = precipitation.length) {
   let run = 0;
-  for (let i = startIdx; i < precipitation.length; i++) {
+  for (let i = startIdx; i < maxIdx; i++) {
     if (precipitation[i] > 0) run++;
     else break;
   }
@@ -63,7 +66,9 @@ function workableDayIndices(forecast) {
 
     for (let h = startH; h < endH; h++) {
       if (hourly.precipitation[h] > 0) {
-        const run = rainRunLength(hourly.precipitation, h);
+        // Bound the run to THIS day's hours (endH exclusive) so rain straddling
+        // midnight into day d+1 doesn't wrongly disqualify day d.
+        const run = rainRunLength(hourly.precipitation, h, endH);
         if (run > WORKABLE_SUSTAINED_RAIN_HOURS) {
           hasSustainedRain = true;
           break;

@@ -229,3 +229,32 @@ test('typed submit with geocode null shows not-found message and does not call o
     `expected not-found message, got: "${msg}"`,
   );
 });
+
+// ─── Test 5 — geocode REJECTS → inline error, onResolve NOT called, no leak ──
+
+test('typed submit where geocode rejects shows inline error and does not call onResolve', async () => {
+  const host = makeHost();
+  const calls = [];
+
+  // Surface any unhandled rejection as a test failure.
+  const onUnhandled = (err) => { throw err; };
+  process.on('unhandledRejection', onUnhandled);
+
+  const fakeGeocode = async () => { throw new Error('Geocoding API error: 503 Service Unavailable'); };
+
+  mountLocationInput(host, (loc) => calls.push(loc), { geocode: fakeGeocode });
+
+  try {
+    await submitInput(host, 'Fresno CA');
+    await new Promise(r => setTimeout(r, 0));
+
+    assert.equal(calls.length, 0, 'onResolve must NOT be called when geocode rejects');
+    const msg = getMessageText(host);
+    assert.ok(
+      msg.toLowerCase().includes('could not reach') || msg.toLowerCase().includes('connection'),
+      `expected a service-error message, got: "${msg}"`,
+    );
+  } finally {
+    process.removeListener('unhandledRejection', onUnhandled);
+  }
+});
