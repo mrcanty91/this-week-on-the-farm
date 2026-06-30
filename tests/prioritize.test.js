@@ -194,6 +194,22 @@ test('when no CROPS cards are present a neutral card is included', () => {
   assert.ok(neutralCard, 'Neutral Crops card must be present when no Crops cards are provided');
 });
 
+test('neutral Crops card carries a real forecast number when a forecast is supplied (T14 review §11/S1-2)', () => {
+  // §11: 100% of cards contain a real forecast number. The neutral floor card
+  // must surface a benign real number (e.g. week high / precip total) sourced
+  // from the forecast it does have, rather than the "—" placeholder.
+  const forecast = benignForecast();
+  const input = [WORKABLE_CARD, HEAT_CARD]; // no Crops → neutral injected
+  const result = prioritize(input, forecast);
+  const neutral = result.find(c => /No critical crop actions this week/i.test(c.title));
+  assert.ok(neutral, 'neutral Crops card present');
+  assert.match(
+    neutral.numberLine,
+    /\d+(\.\d+)?\s*(in|°F)/,
+    `neutral card must carry a real number, got: "${neutral.numberLine}"`,
+  );
+});
+
 test('neutral Crops card appears in Crops position (before Crew cards)', () => {
   const input = [HEAT_CARD, WORKABLE_CARD];
   const result = prioritize(input);

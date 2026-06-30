@@ -22,7 +22,9 @@ import {
   FROST_TEMP_F,
   HARD_FROST_TEMP_F,
   CARD_PRIORITY,
+  CARD_CALL_MAX_CHARS,
 } from './config.js';
+import { weekdayFromISODate, dayLabel } from './daylabel.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -118,33 +120,6 @@ function findSprayWindow(hourly) {
 }
 
 /**
- * Weekday name for an ISO local date/timestamp string ("YYYY-MM-DD" or
- * "YYYY-MM-DDTHH:00"). Parses the date part as LOCAL (via explicit y/m/d) to
- * avoid the UTC-midnight off-by-one that `new Date('YYYY-MM-DD')` would hit.
- * @param {string} isoDate
- * @returns {string|null} e.g. "Monday", or null if unparseable
- */
-function weekdayFromISODate(isoDate) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate ?? '');
-  if (!m) return null;
-  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString('en-US', { weekday: 'long' });
-}
-
-/**
- * Day-of-week label for the hour at `hourIndex`, derived from the actual
- * `hourly.time` timestamps (NOT from a Sunday-anchored index — that named the
- * wrong weekday whenever the forecast didn't start on Sunday).
- * @param {string[]} time   hourly.time array (index-aligned)
- * @param {number} hourIndex
- * @returns {string} e.g. "Wednesday" (falls back to "Day N" if time is missing)
- */
-function dayLabel(time, hourIndex) {
-  return weekdayFromISODate(time?.[hourIndex]) ?? `Day ${Math.floor(hourIndex / 24) + 1}`;
-}
-
-/**
  * Round to 2 decimal places for display.
  * @param {number} n
  * @returns {string}
@@ -198,7 +173,7 @@ function cr01(forecast) {
   };
 
   // Enforce char limit on the call (longest day name = "Wednesday")
-  if (card.call.length > 80) {
+  if (card.call.length > CARD_CALL_MAX_CHARS) {
     card.call = `Skip irrigation through ${throughDay} — ${fmt(totalPrecip48)}in rain due.`;
   }
 

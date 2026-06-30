@@ -126,7 +126,9 @@ export async function handleResolvedLocation(loc, ctx) {
   // message frozen on screen (PRD §10 — no partial/stuck UI).
   try {
     const combined = [...cropCards(forecast), ...crewCards(forecast)];
-    const ordered = prioritize(combined);
+    // Pass the forecast so the neutral floor card (mild weeks) carries a real
+    // number, keeping §11's "100% of cards contain a real number" true.
+    const ordered = prioritize(combined, forecast);
 
     const stripEl = renderStrip(forecast.daily);
     forecastStripEl.appendChild(stripEl);

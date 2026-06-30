@@ -92,6 +92,14 @@ export async function getForecast(coords) {
 
   const data = await response.json();
 
+  // Open-Meteo answers HTTP 200 with {error:true, reason:'...'} for some bad
+  // requests (e.g. out-of-range coords). Validate the shape before destructuring
+  // so we throw a CATCHABLE, MEANINGFUL Error (honoring this module's contract)
+  // rather than an opaque "Cannot read properties of undefined" TypeError.
+  if (data.error || !data.hourly || !data.daily) {
+    throw new Error(`getForecast: ${data.reason ?? 'malformed Open-Meteo response (missing hourly/daily)'}`);
+  }
+
   return {
     latitude: data.latitude,
     longitude: data.longitude,

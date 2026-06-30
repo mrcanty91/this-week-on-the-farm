@@ -59,6 +59,8 @@ function displayPosition(card) {
 
 /**
  * Neutral card injected into the Crops slot when no crop rules fired.
+ * Fallback used only when no forecast is supplied (e.g. isolated unit tests);
+ * the real pipeline passes a forecast so the card carries a real number (§11).
  * @type {Card}
  */
 const NEUTRAL_CROPS_CARD = Object.freeze({
@@ -70,6 +72,27 @@ const NEUTRAL_CROPS_CARD = Object.freeze({
   numberLine: '—',
   confidence: 'No crop alerts fired for the forecast window.',
 });
+
+/**
+ * Build the neutral Crops card with a real benign forecast number so §11's
+ * "100% of cards contain a real forecast number" holds even in mild weeks
+ * (T14 review §11/S1-2). Sources the week's high and total precip from the
+ * forecast it does have. Falls back to the "—" constant when no forecast is
+ * supplied (isolated unit tests).
+ * @param {object|null} forecast NormalizedForecast, or null
+ * @returns {Card}
+ */
+function buildNeutralCropCard(forecast) {
+  if (!forecast || !forecast.daily) return { ...NEUTRAL_CROPS_CARD };
+  const { daily } = forecast;
+  const maxHigh = Math.round(Math.max(...daily.temperature_2m_max));
+  const precipTotal = daily.precipitation_sum.reduce((a, b) => a + b, 0);
+  const precipStr = (Math.round(precipTotal * 100) / 100).toString();
+  return {
+    ...NEUTRAL_CROPS_CARD,
+    numberLine: `Highs near ${maxHigh}°F, ${precipStr}in rain forecast this week.`,
+  };
+}
 
 /**
  * Order and cap the combined card list for display.
@@ -91,7 +114,7 @@ const NEUTRAL_CROPS_CARD = Object.freeze({
  *                         Times in Crew, irrigation + spray in Crops), not
  *                         enforced here.
  */
-export function prioritize(cards) {
+export function prioritize(cards, forecast = null) {
   // Step 1: guarantee the §8 4-card floor's Crops half.
   // Crew always contributes 2 always-on cards (CW-01 Workable Days + CW-02 Start
   // Times). Crops always has spray (CR-03), but its irrigation cards (CR-01/CR-02)
@@ -100,7 +123,7 @@ export function prioritize(cards) {
   // neutral Crops card whenever the Crops section has fewer than 2 cards, mirroring
   // Crew's always-on second card (§8 PM decision: "4–6 cards, with 4 guaranteed").
   const cropsCount = cards.filter(c => c.group === CARD_GROUPS.CROPS).length;
-  const working = cropsCount >= 2 ? [...cards] : [...cards, { ...NEUTRAL_CROPS_CARD }];
+  const working = cropsCount >= 2 ? [...cards] : [...cards, buildNeutralCropCard(forecast)];
 
   // Step 2: pin the always-on Crew cards — kept regardless of cap.
   // This pins BOTH CW-01 Workable Days AND the benign-state CW-02 Start Times:
