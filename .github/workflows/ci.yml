@@ -37,3 +37,27 @@ jobs:
 
       - name: Unit tests (node --test)
         run: npm test
+
+  validate-config:
+    name: Validate vercel.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Lint vercel.json against Vercel's published config schema so an invalid
+      # or unknown key fails HERE, not at deploy. (A bad `publicSource` key once
+      # passed unit review and only Vercel's deploy validator caught it.)
+      - name: Fetch Vercel config schema
+        run: curl -fsSL --retry 3 --retry-delay 2 https://openapi.vercel.sh/vercel.json -o /tmp/vercel.schema.json
+
+      - name: Install schema validator (ephemeral — repo stays dependency-free)
+        run: npm install --no-save ajv@6
+
+      - name: Validate vercel.json against the schema
+        run: node scripts/validate-vercel-config.cjs /tmp/vercel.schema.json vercel.json
