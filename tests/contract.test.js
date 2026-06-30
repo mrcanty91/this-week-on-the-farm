@@ -29,20 +29,10 @@ test('every module exposes its named entry point as a function', () => {
   }
 });
 
-test('async stubs reject with "not implemented" until Wave 1', async () => {
-  await assert.rejects(() => getForecast({ lat: 0, lon: 0 }), /not implemented/);
-  await assert.rejects(() => geocode('Fresno'), /not implemented/);
-});
-
-test('sync stubs throw "not implemented" until Wave 1', () => {
-  assert.throws(() => isInConus({ lat: 0, lon: 0 }), /not implemented/);
-  assert.throws(() => cropCards({}), /not implemented/);
-  assert.throws(() => crewCards({}), /not implemented/);
-  assert.throws(() => prioritize([]), /not implemented/);
-  assert.throws(() => renderCard({}), /not implemented/);
-  assert.throws(() => renderStrip({}), /not implemented/);
-  assert.throws(() => mountLocationInput(null, () => {}), /not implemented/);
-});
+// NOTE (WAVE 1): the Wave-0 "stubs throw 'not implemented'" guards were retired
+// here once the parallel implementers began landing real bodies — each module is
+// now covered by its own tests/<module>.test.js. The entry-point surface check
+// above and the ET₀ contract guard below remain the cross-module invariants.
 
 /**
  * ET₀ REGRESSION GUARD (the WAVE-0 smoke-test finding).
