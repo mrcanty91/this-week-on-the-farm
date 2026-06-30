@@ -34,6 +34,7 @@ function makeFakeNode(tag, id) {
       contains: (n) => classes.has(n),
     },
     appendChild(child) { this.children.push(child); return child; },
+    replaceChildren() { this.children.length = 0; },
     setAttribute(name, val) { this[name] = val; },
   };
   return node;

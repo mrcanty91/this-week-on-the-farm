@@ -91,10 +91,8 @@ export async function handleResolvedLocation(loc, ctx) {
 
   // Step 1: Reset UI for new search (PRD §6)
   clearMessage(messageEl);
-  forecastStripEl.children.length = 0; // clear via property for fake DOM compat
-  forecastStripEl.innerHTML = '';
-  cardStackEl.children.length = 0;
-  cardStackEl.innerHTML = '';
+  forecastStripEl.replaceChildren();
+  cardStackEl.replaceChildren();
 
   // Step 2: CONUS guard — MUST run before any forecast call
   if (!isInConus(loc)) {
@@ -174,7 +172,9 @@ export function initApp(deps = {}) {
   };
 
   const mountFn = deps.mountLocationInput ?? mountLocationInput;
-  mountFn(locationFormEl, (loc) => { void handleResolvedLocation(loc, ctx); });
+  mountFn(locationFormEl, (loc) => {
+    handleResolvedLocation(loc, ctx).catch((err) => console.error('[Farm Weather Advisor]', err));
+  });
 }
 
 // ─── Auto-run guard ───────────────────────────────────────────────────────────
