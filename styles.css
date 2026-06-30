@@ -209,7 +209,6 @@
 .seso-card__call {
   font: var(--type-body);
   color: var(--text-body);
-  line-height: var(--leading-normal);
 }
 
 /*

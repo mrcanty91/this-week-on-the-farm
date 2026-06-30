@@ -37,6 +37,17 @@ function stripComments(css) {
 
 const stripped = stripComments(raw);
 
+/**
+ * Returns true only when the given selector appears as an actual rule head
+ * (selector token immediately followed by optional whitespace then `{` or `,`).
+ * This prevents `.seso-card__group {` from satisfying the `.seso-card` assertion,
+ * and handles comma-separated selector lists like `.forecast-strip__icon,`.
+ */
+function definesSelector(css, selector) {
+  const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(esc + '\\s*[{,]').test(css);
+}
+
 describe('DS adherence — no hardcoded values', () => {
   test('no raw hex color literals (#rrggbb / #rgb / #rrggbbaa) in declarations', () => {
     const hexPattern = /#[0-9a-fA-F]{3,8}\b/g;
@@ -77,74 +88,74 @@ describe('DS adherence — no hardcoded values', () => {
 describe('Required selectors are defined', () => {
   // Card organism selectors (emitted by src/card.js)
   test('.seso-card is defined', () => {
-    assert.ok(raw.includes('.seso-card'), 'styles.css must define .seso-card');
+    assert.ok(definesSelector(stripped, '.seso-card'), 'styles.css must define .seso-card as a rule head');
   });
 
   test('.seso-card__group is defined', () => {
-    assert.ok(raw.includes('.seso-card__group'), 'styles.css must define .seso-card__group');
+    assert.ok(definesSelector(stripped, '.seso-card__group'), 'styles.css must define .seso-card__group as a rule head');
   });
 
   test('.seso-card__title is defined', () => {
-    assert.ok(raw.includes('.seso-card__title'), 'styles.css must define .seso-card__title');
+    assert.ok(definesSelector(stripped, '.seso-card__title'), 'styles.css must define .seso-card__title as a rule head');
   });
 
   test('.seso-card__call is defined', () => {
-    assert.ok(raw.includes('.seso-card__call'), 'styles.css must define .seso-card__call');
+    assert.ok(definesSelector(stripped, '.seso-card__call'), 'styles.css must define .seso-card__call as a rule head');
   });
 
   test('.seso-card__number-line is defined', () => {
-    assert.ok(raw.includes('.seso-card__number-line'), 'styles.css must define .seso-card__number-line');
+    assert.ok(definesSelector(stripped, '.seso-card__number-line'), 'styles.css must define .seso-card__number-line as a rule head');
   });
 
   test('.seso-card__confidence is defined', () => {
-    assert.ok(raw.includes('.seso-card__confidence'), 'styles.css must define .seso-card__confidence');
+    assert.ok(definesSelector(stripped, '.seso-card__confidence'), 'styles.css must define .seso-card__confidence as a rule head');
   });
 
   // Forecast strip selectors (emitted by src/strip.js)
   test('.forecast-strip is defined', () => {
-    assert.ok(raw.includes('.forecast-strip'), 'styles.css must define .forecast-strip');
+    assert.ok(definesSelector(stripped, '.forecast-strip'), 'styles.css must define .forecast-strip as a rule head');
   });
 
   test('.forecast-strip__day is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__day'), 'styles.css must define .forecast-strip__day');
+    assert.ok(definesSelector(stripped, '.forecast-strip__day'), 'styles.css must define .forecast-strip__day as a rule head');
   });
 
   test('.forecast-strip__label is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__label'), 'styles.css must define .forecast-strip__label');
+    assert.ok(definesSelector(stripped, '.forecast-strip__label'), 'styles.css must define .forecast-strip__label as a rule head');
   });
 
   test('.forecast-strip__icon is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__icon'), 'styles.css must define .forecast-strip__icon (also .weather-icon)');
+    assert.ok(definesSelector(stripped, '.forecast-strip__icon'), 'styles.css must define .forecast-strip__icon as a rule head (also .weather-icon)');
   });
 
   test('.forecast-strip__temps is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__temps'), 'styles.css must define .forecast-strip__temps');
+    assert.ok(definesSelector(stripped, '.forecast-strip__temps'), 'styles.css must define .forecast-strip__temps as a rule head');
   });
 
   test('.forecast-strip__high is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__high'), 'styles.css must define .forecast-strip__high');
+    assert.ok(definesSelector(stripped, '.forecast-strip__high'), 'styles.css must define .forecast-strip__high as a rule head');
   });
 
   test('.forecast-strip__low is defined', () => {
-    assert.ok(raw.includes('.forecast-strip__low'), 'styles.css must define .forecast-strip__low');
+    assert.ok(definesSelector(stripped, '.forecast-strip__low'), 'styles.css must define .forecast-strip__low as a rule head');
   });
 
   // Message state selectors (toggled by src/main.js on #message)
   test('.app__message--error is defined', () => {
-    assert.ok(raw.includes('.app__message--error'), 'styles.css must define .app__message--error');
+    assert.ok(definesSelector(stripped, '.app__message--error'), 'styles.css must define .app__message--error as a rule head');
   });
 
   test('.app__message--notice is defined', () => {
-    assert.ok(raw.includes('.app__message--notice'), 'styles.css must define .app__message--notice');
+    assert.ok(definesSelector(stripped, '.app__message--notice'), 'styles.css must define .app__message--notice as a rule head');
   });
 
   test('.app__message--info is defined', () => {
-    assert.ok(raw.includes('.app__message--info'), 'styles.css must define .app__message--info');
+    assert.ok(definesSelector(stripped, '.app__message--info'), 'styles.css must define .app__message--info as a rule head');
   });
 
   // Layout container
   test('#card-stack is defined', () => {
-    assert.ok(raw.includes('#card-stack'), 'styles.css must define #card-stack');
+    assert.ok(definesSelector(stripped, '#card-stack'), 'styles.css must define #card-stack as a rule head');
   });
 });
 
