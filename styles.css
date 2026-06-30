@@ -1,15 +1,22 @@
 /*
- * styles.css — App-specific styles (T11, Wave 2). WAVE 0: PLACEHOLDER.
+ * styles.css — Farm Weather Advisor app stylesheet (T11, Wave 2).
  *
- * Owned by T11. Layer app layout (single-column, mobile-legible, Crops/Crew
- * grouping) on top of the Seso DS tokens/styles.css — NO hardcoded color,
- * spacing, or type; use the DS custom properties (--space-*, --type-*, --brand,
- * --action, etc.). This placeholder exists only so the shell links resolve with
- * zero 404s/console errors in WAVE 0; T11 replaces it.
+ * Layers on top of the Seso DS (seso-design-system/project/styles.css which
+ * imports tokens + base.css). All color, spacing, radius, shadow, and type
+ * values come exclusively from DS tokens via var(--…). No hardcoded hex,
+ * no px dimensions, no non-DS font-family declarations.
+ *
+ * Mobile-first, single column, no media queries.
+ * Crops/Crew grouping is signaled by the green .seso-card__group eyebrow
+ * (base.css via --brand) + card vertical separation via #card-stack gap.
  */
 
+/* ============================================================
+   LAYOUT — single-column wrapper
+   ============================================================ */
+
 .app {
-  max-width: 480px;
+  max-width: 36rem;
   margin: 0 auto;
   padding: var(--space-6);
   display: flex;
@@ -26,4 +33,196 @@
 .app__tagline {
   color: var(--text-muted);
   font: var(--type-subheading);
+}
+
+/* ============================================================
+   LOCATION INPUT — layout only; module owns its own colors/borders
+   ============================================================ */
+
+.seso-location-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.seso-location-row {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.seso-location-msg {
+  font-size: var(--text-sm);
+}
+
+/* ============================================================
+   MESSAGE STATE — #message paragraph (toggled by main.js)
+   ============================================================ */
+
+/* Base: block, padded, rounded. Hidden when empty. */
+#message {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+/* When main.js clears textContent the element is empty — collapse it */
+#message:empty {
+  display: none;
+  padding: 0;
+}
+
+/* Error — forecast fetch failure */
+.app__message--error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: var(--border-width) solid var(--danger);
+}
+
+/* Notice — informational CONUS coverage message (not an error) */
+.app__message--notice {
+  color: var(--info);
+  background: var(--info-bg);
+  border: var(--border-width) solid var(--border);
+}
+
+/* Info — transient "Loading…" hint; quiet/muted */
+.app__message--info {
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border: var(--border-width) solid var(--border);
+}
+
+/* ============================================================
+   FORECAST STRIP — 7-day horizontal row (src/strip.js)
+   ============================================================ */
+
+.forecast-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-3) var(--space-2);
+}
+
+/* One day column — flex column, centered */
+.forecast-strip__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Day-of-week label: "Mon", "Tue" etc. */
+.forecast-strip__label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Icon wrapper — inherits currentColor for the inline SVG stroke */
+.forecast-strip__icon,
+.weather-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--action);
+}
+
+/* High + low temperature wrapper */
+.forecast-strip__temps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* High temperature — emphasized; .seso-mono provides font-family */
+.forecast-strip__high {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-heading);
+}
+
+/* Low temperature — de-emphasized; .seso-mono provides font-family */
+.forecast-strip__low {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   CARD STACK — vertical list of recommendation cards
+   ============================================================ */
+
+#card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Empty section collapses without contributing extra gap */
+#card-stack:empty,
+#forecast-strip:empty {
+  display: none;
+}
+
+/* ============================================================
+   CARD ORGANISM — single recommendation card (src/card.js)
+   ============================================================ */
+
+/* Card surface: white panel, hairline border, 12px radius, xs shadow */
+.seso-card {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/*
+ * Group label: CROPS / CREW overline.
+ * base.css .seso-eyebrow gives it: text-xs, bold, tracking-caps, uppercase,
+ * color: var(--brand) [green]. We add only vertical rhythm here.
+ */
+.seso-card__group {
+  margin-bottom: var(--space-1);
+}
+
+/* Title: h3 — bold, xl, tight. base.css headings cover font/weight/leading. */
+.seso-card__title {
+  font-size: var(--text-xl);
+  color: var(--text-heading);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+}
+
+/* Call: action sentence — comfortable body text */
+.seso-card__call {
+  font: var(--type-body);
+  color: var(--text-body);
+}
+
+/*
+ * Number line: real forecast figures. .seso-mono (base.css) provides IBM Plex
+ * Mono + tnum. We add only emphasis styling.
+ */
+.seso-card__number-line {
+  font-size: var(--text-sm);
+  color: var(--text-heading);
+  line-height: var(--leading-snug);
+}
+
+/* Confidence: "what's driving it + how sure" — muted caption */
+.seso-card__confidence {
+  font: var(--type-caption);
+  color: var(--text-muted);
 }
