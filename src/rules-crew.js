@@ -20,6 +20,7 @@ import {
   CARD_PRIORITY,
   CARD_GROUPS,
 } from './config.js';
+import { dayLabel } from './daylabel.js';
 
 /**
  * Count how many consecutive hours have non-zero precipitation starting at index i,
@@ -102,13 +103,13 @@ export function crewCards(forecast) {
   // Peak apparent temperature across all hours
   const peakApparent = Math.max(...hourly.apparent_temperature);
 
-  // Find day index with peak apparent temp
+  // Hour index of the peak apparent temp → weekday label via hourly.time
   const peakApparentHourIdx = hourly.apparent_temperature.indexOf(peakApparent);
-  const peakApparentDay = Math.floor(peakApparentHourIdx / 24);
 
   // Check for early-start condition: any hour ≥ EARLY_START_TEMP_F on a workable day
   let earlyStartTriggerTemp = null;
   let earlyStartDayIdx = null;
+  let earlyStartHourIdx = null; // hour index → weekday label via hourly.time
   for (let h = 0; h < hourly.temperature_2m.length; h++) {
     const t = hourly.temperature_2m[h];
     if (t >= EARLY_START_TEMP_F) {
@@ -117,6 +118,7 @@ export function crewCards(forecast) {
         if (earlyStartTriggerTemp === null || t > earlyStartTriggerTemp) {
           earlyStartTriggerTemp = t;
           earlyStartDayIdx = dayIdx;
+          earlyStartHourIdx = h;
         }
       }
     }
@@ -145,7 +147,7 @@ export function crewCards(forecast) {
   // ── CW-03 Heat Risk (fires when apparent_temperature ≥ HEAT_RISK_APPARENT_F) ──
 
   if (heatRisk) {
-    const dayLabel = `Day ${peakApparentDay + 1}`;
+    const dayName = dayLabel(hourly.time, peakApparentHourIdx);
 
     if (heatDanger) {
       cards.push({
@@ -154,7 +156,7 @@ export function crewCards(forecast) {
         priority: CARD_PRIORITY.HEAT,
         title: `Heat Danger — Suspend Crew Work`,
         call: `Suspend crew work — heat danger conditions forecast this week.`,
-        numberLine: `Feels like ${peakApparent}°F on ${dayLabel} — above heat danger threshold`,
+        numberLine: `Feels like ${peakApparent}°F on ${dayName} — above heat danger threshold`,
         confidence: `Apparent temperature hits ${peakApparent}°F, well above the ${HEAT_DANGER_APPARENT_F}°F danger level.`,
       });
     } else {
@@ -163,8 +165,8 @@ export function crewCards(forecast) {
         ruleId: 'CW-03',
         priority: CARD_PRIORITY.HEAT,
         title: `Heat Risk This Week`,
-        call: `Watch crew closely — heat risk conditions on ${dayLabel}.`,
-        numberLine: `Feels like ${peakApparent}°F on ${dayLabel} — above heat risk threshold`,
+        call: `Watch crew closely — heat risk conditions on ${dayName}.`,
+        numberLine: `Feels like ${peakApparent}°F on ${dayName} — above heat risk threshold`,
         confidence: `Apparent temperature hits ${peakApparent}°F, at or above the ${HEAT_RISK_APPARENT_F}°F heat risk level.`,
       });
     }
@@ -176,26 +178,26 @@ export function crewCards(forecast) {
 
   if (heatFired) {
     // Supersede benign copy: CW-02 should reflect the heat escalation
-    const dayLabel = `Day ${(earlyStartDayIdx !== null ? earlyStartDayIdx : peakApparentDay) + 1}`;
+    const dayName = dayLabel(hourly.time, earlyStartHourIdx !== null ? earlyStartHourIdx : peakApparentHourIdx);
     const triggerTemp = earlyStartTriggerTemp ?? Math.round(peakApparent);
     cards.push({
       group: CARD_GROUPS.CREW,
       ruleId: 'CW-02',
       priority: CARD_PRIORITY.EARLY_START,
       title: `Start Crew Early This Week`,
-      call: `Start crew by 6am — heat-safety risk after 10am on ${dayLabel}.`,
+      call: `Start crew by 6am — heat-safety risk after 10am on ${dayName}.`,
       numberLine: `${triggerTemp}°F forecast — OSHA heat advisory threshold exceeded`,
       confidence: `High temps forecast; earlier start protects crew from heat exposure.`,
     });
   } else if (earlyStartTriggerTemp !== null) {
     // Early-start escalation without CW-03
-    const dayLabel = `Day ${earlyStartDayIdx + 1}`;
+    const dayName = dayLabel(hourly.time, earlyStartHourIdx);
     cards.push({
       group: CARD_GROUPS.CREW,
       ruleId: 'CW-02',
       priority: CARD_PRIORITY.EARLY_START,
       title: `Start Crew Early This Week`,
-      call: `Start crew by 6am — heat-safety risk after 10am on ${dayLabel}.`,
+      call: `Start crew by 6am — heat-safety risk after 10am on ${dayName}.`,
       numberLine: `${earlyStartTriggerTemp}°F forecast — OSHA heat advisory threshold exceeded`,
       confidence: `High temps forecast; earlier start protects crew from heat exposure.`,
     });

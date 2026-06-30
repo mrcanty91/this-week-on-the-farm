@@ -188,6 +188,21 @@ describe('CW-02 Start Times', () => {
     );
   });
 
+  test('early-start references a weekday name, not "Day N" (T14 review I-2/S1-1)', () => {
+    // §9 requires a day reference like "Thursday"; the PRD reference card reads
+    // "...by 6am Thursday." Crew must use weekday names, matching the crop rules.
+    const temperature_2m = Array(168).fill(75);
+    temperature_2m[10] = 95; // day 0, hour 10 → early start
+    const forecast = makeForecast({ hourly: { temperature_2m }, daily: { temperature_2m_max: [97, 82, 82, 82, 82, 82, 82] } });
+    const cw02 = getCard(crewCards(forecast), 'CW-02');
+    assert.ok(!/Day \d/.test(cw02.call), `call must not use "Day N": "${cw02.call}"`);
+    assert.match(
+      cw02.call,
+      /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/,
+      `call must reference a weekday name: "${cw02.call}"`,
+    );
+  });
+
   test('does NOT escalate to early-start when 95°F only occurs on non-workable day', () => {
     // Day 0 has max temp 100°F (not workable), and the 95°F hour is on day 0
     const temperature_2m = Array(168).fill(75);
@@ -265,6 +280,19 @@ describe('CW-03 Heat Risk', () => {
     assert.ok(
       !cw02.call.toLowerCase().includes('normal hours'),
       'CW-02 should not say "normal hours" when CW-03 fires',
+    );
+  });
+
+  test('heat card references a weekday name, not "Day N" (T14 review I-2/S1-1)', () => {
+    const apparent_temperature = Array(168).fill(75);
+    apparent_temperature[24] = 107; // day 1
+    const cw03 = getCard(crewCards(makeForecast({ hourly: { apparent_temperature } })), 'CW-03');
+    const text = `${cw03.numberLine} ${cw03.call}`;
+    assert.ok(!/Day \d/.test(text), `heat card must not use "Day N": "${text}"`);
+    assert.match(
+      text,
+      /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/,
+      `heat card must reference a weekday name: "${text}"`,
     );
   });
 

@@ -317,6 +317,8 @@ of scope; this is a single-session prototype.
 | 2026-06-29 | Engineering converts ET₀ mm→inch (÷25.4) | Simple bounded calc; don't rely on `precipitation_unit` for ET₀ | PM |
 | 2026-06-29 | **ET₀ correction (supersedes row above):** live-API smoke test shows `precipitation_unit=inch` DOES convert ET₀ to inches. forecast.js passes ET₀ through in inches with **NO** manual ÷25.4 (a second conversion would double-convert and silently suppress irrigation). | WAVE 0 smoke test; prevents silent wrong-irrigation calls | PM/ENG |
 | 2026-06-29 | Keep OSHA copy as-is for POC | Demoable now; tighten regulatory wording in Phase 2 | PM |
+| 2026-06-29 | Neutral "No critical crop actions" floor card carries a real benign number (week high + precip total) | Keeps §11 "100% of cards contain a real forecast number" literally true in mild weeks; resolves a T14 review finding | PM |
+| 2026-06-29 | Crew day references use weekday names ("Thursday"), matching §9/crop cards — not "Day N" | §9 day-reference compliance; T14 review finding | PM/ENG |
 | TBD | Rules-engine implementation pattern | Flagged for engineering | ENG |
 | TBD | Geocoding + geolocation handling | Flagged for engineering | ENG |
 

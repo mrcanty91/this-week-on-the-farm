@@ -17,28 +17,22 @@ Recommendations split into two groups from a single 7-day forecast:
 
 ## How it works
 
-- **Data:** [Open-Meteo](https://open-meteo.com/) forecast API — free, no API key, hourly +
-  7-day, including precipitation, wind, temperature, ET₀ (evapotranspiration), and frost.
-- **Logic:** a small client-side rules engine turns raw forecast variables into decisions using
-  generalized agronomic thresholds.
-- **Stack:** static front end (no build step, no backend) — trivially runnable and deployable.
-
-## Proposed stack
-
-- **Data:** [Open-Meteo](https://open-meteo.com/) forecast API — free, no API key, hourly +
-  7-day, including precipitation, wind, temperature, ET₀ (evapotranspiration), and frost.
-- **Front end:** static single-page app, client-side API calls, no build step, no backend.
-- **Map:** Leaflet + OpenStreetMap tiles for the location dashboard.
-- **Deploy:** Vercel static, public URL.
+- **Data:** [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, no API key,
+  hourly + 7-day, including precipitation, wind, temperature, ET₀ (evapotranspiration), and frost.
+- **Logic:** a small client-side rules engine (`src/rules-crops.js`, `src/rules-crew.js`) turns raw
+  forecast variables into decisions using generalized agronomic thresholds (all in `src/config.js`).
+- **UI:** vanilla ES modules, no build step — recommendation cards and the 7-day strip are styled
+  from the Seso Design System tokens (`seso-design-system/`).
+- **Deploy:** Vercel static, public HTTPS URL, no backend.
 
 ## Scope (v1)
 
 Continental US only. No accounts, no saved farms, no crop-specific calibration. Recommendations
 are agronomic guidance, not a substitute for the pesticide label or local regulations. See
-[`PRD-this-week-on-the-farm.md`](./PRD-this-week-on-the-farm.md) for full requirements.
+[`PRD-Farm-Weather-Advisor.md`](./PRD-Farm-Weather-Advisor.md) for full requirements.
 
 ## Project status
 
-📋 Spec stage — requirements are defined and ready for development handoff. See
-[`PRD-this-week-on-the-farm.md`](./PRD-this-week-on-the-farm.md) for the full PRD,
-rules table, acceptance criteria, and milestones.
+✅ Phase 1 built and deployed — location in → card stack out, live on Vercel. See
+[`PRD-Farm-Weather-Advisor.md`](./PRD-Farm-Weather-Advisor.md) for the full PRD, rules table,
+acceptance criteria, and milestones. Run the test suite with `npm test`.

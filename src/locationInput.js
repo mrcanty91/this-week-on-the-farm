@@ -65,7 +65,7 @@ function createDsInput(placeholder) {
     height: 'var(--field-height)',
     padding: '0 var(--space-3)',
     background: 'var(--surface)',
-    border: '1px solid var(--border-strong)',
+    border: 'var(--border-width) solid var(--border-strong)',
     borderRadius: 'var(--radius-md)',
     boxSizing: 'border-box',
     transition: 'border-color var(--duration-fast), box-shadow var(--duration-fast)',
@@ -125,12 +125,12 @@ function createDsButton(label, variant = 'primary') {
       ? {
           background: 'var(--action)',
           color: 'var(--action-text)',
-          border: '1px solid var(--action)',
+          border: 'var(--border-width) solid var(--action)',
         }
       : {
           background: 'var(--surface)',
           color: 'var(--text-body)',
-          border: '1px solid var(--border-strong)',
+          border: 'var(--border-width) solid var(--border-strong)',
         };
 
   applyTokenStyle(btn, { ...baseStyle, ...variantStyle });
@@ -168,14 +168,14 @@ function showMessage(msgEl, text, kind = 'error') {
     applyTokenStyle(msgEl, {
       color: 'var(--danger)',
       background: 'var(--danger-bg)',
-      border: '1px solid var(--danger)',
+      border: 'var(--border-width) solid var(--danger)',
       display: 'block',
     });
   } else {
     applyTokenStyle(msgEl, {
       color: 'var(--text-muted)',
       background: 'var(--surface-sunken)',
-      border: '1px solid var(--border)',
+      border: 'var(--border-width) solid var(--border)',
       display: 'block',
     });
   }

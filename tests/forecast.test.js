@@ -291,6 +291,31 @@ describe('getForecast', () => {
   });
 
   // -------------------------------------------------------------------------
+  // Malformed-response guard (T14 review I-1)
+  //
+  // Open-Meteo answers HTTP 200 with {error:true, reason:'...'} for some bad
+  // requests (no hourly/daily). getForecast must throw a CATCHABLE, MEANINGFUL
+  // Error — not an opaque "Cannot read properties of undefined (reading 'time')"
+  // TypeError that violates the module's documented "throws a meaningful Error".
+  // -------------------------------------------------------------------------
+  test('throws a meaningful error on a 200 response with an error body (no hourly/daily)', async () => {
+    globalThis.fetch = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ error: true, reason: 'Latitude must be in range -90 to 90' }),
+    });
+
+    await assert.rejects(
+      getForecast({ lat: 999, lon: 999 }),
+      (err) =>
+        err instanceof Error &&
+        /Latitude must be in range|malformed/i.test(err.message) &&
+        !/Cannot read properties/.test(err.message),
+      'must throw a meaningful Error citing the API reason, not a TypeError',
+    );
+  });
+
+  // -------------------------------------------------------------------------
   // API field mapping: et0_fao_evapotranspiration → daily.et0
   // -------------------------------------------------------------------------
   test('maps et0_fao_evapotranspiration API field to daily.et0 in the result', async () => {
