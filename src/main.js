@@ -120,16 +120,30 @@ export async function handleResolvedLocation(loc, ctx) {
     return;
   }
 
-  // Step 5: Build prioritized card list
-  const combined = [...cropCards(forecast), ...crewCards(forecast)];
-  const ordered = prioritize(combined);
+  // Step 5 & 6: Build card list and render strip + cards.
+  // Any unexpected throw here (e.g. bad data crashing a rule or renderer) must
+  // degrade gracefully to the same error state rather than leaving the "Loading…"
+  // message frozen on screen (PRD §10 — no partial/stuck UI).
+  try {
+    const combined = [...cropCards(forecast), ...crewCards(forecast)];
+    const ordered = prioritize(combined);
 
-  // Step 6: Render strip and cards
-  const stripEl = renderStrip(forecast.daily);
-  forecastStripEl.appendChild(stripEl);
+    const stripEl = renderStrip(forecast.daily);
+    forecastStripEl.appendChild(stripEl);
 
-  for (const card of ordered) {
-    cardStackEl.appendChild(renderCard(card));
+    for (const card of ordered) {
+      cardStackEl.appendChild(renderCard(card));
+    }
+  } catch (_renderErr) {
+    // Clear any partially-rendered children before showing the error.
+    forecastStripEl.replaceChildren();
+    cardStackEl.replaceChildren();
+    setMessage(
+      messageEl,
+      "Couldn't load the forecast — check your connection and try again.",
+      'error',
+    );
+    return;
   }
 
   // Step 7: Clear message on success (no leftover error/loading text)

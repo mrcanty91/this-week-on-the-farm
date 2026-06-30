@@ -293,6 +293,38 @@ test('re-search resets: second call clears first render before producing new res
   assert.equal(ctx.messageEl.textContent, '', '#message cleared after second successful search');
 });
 
+// ─── Test 6 — Render/build pipeline throws after loading message ──────────────
+
+test('render pipeline error: renderStrip throws → #message shows error string, #forecast-strip and #card-stack empty, no unhandled rejection', async () => {
+  const onUnhandled = (err) => { throw err; };
+  process.on('unhandledRejection', onUnhandled);
+
+  const ctx = makeCtx({
+    isInConus: () => true,
+    getForecast: async () => makeFakeForecast(),
+    renderStrip: (_daily) => { throw new Error('Simulated renderStrip failure'); },
+  });
+
+  try {
+    const loc = { lat: 36.7, lon: -119.7 };
+    await handleResolvedLocation(loc, ctx);
+
+    assert.equal(
+      ctx.messageEl.textContent,
+      "Couldn't load the forecast — check your connection and try again.",
+      '#message must show exact forecast error string when render pipeline throws',
+    );
+    assert.equal(ctx.forecastStripEl.children.length, 0, '#forecast-strip must be empty (no partial render) on render error');
+    assert.equal(ctx.cardStackEl.children.length, 0, '#card-stack must be empty (no partial render) on render error');
+    assert.ok(
+      ctx.messageEl._classList.has('app__message--error'),
+      '#message must have error state class',
+    );
+  } finally {
+    process.removeListener('unhandledRejection', onUnhandled);
+  }
+});
+
 // ─── Test 5 — Ordering invariant ──────────────────────────────────────────────
 
 test('ordering invariant: isInConus=false proves getForecast never runs; positive order recorded in happy path', async () => {
